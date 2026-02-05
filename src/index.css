@@ -1,0 +1,222 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+  --color-surface-50: #f8fafc;
+  --color-surface-100: #f1f5f9;
+  --color-surface-200: #e2e8f0;
+  --color-surface-300: #cbd5e1;
+  --color-surface-400: #94a3b8;
+  --color-surface-500: #64748b;
+  --color-surface-600: #475569;
+  --color-surface-700: #334155;
+  --color-surface-800: #1e293b;
+  --color-surface-900: #0f172a;
+  --color-surface-950: #020617;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Markdown Preview - GitHub-style */
+.markdown-preview {
+  line-height: 1.6;
+  font-size: 0.875rem;
+  color: #1e293b;
+}
+
+.dark .markdown-preview {
+  color: #e2e8f0;
+}
+
+.markdown-preview h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dark .markdown-preview h1 {
+  border-bottom-color: #334155;
+}
+
+.markdown-preview h2 {
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.75rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dark .markdown-preview h2 {
+  border-bottom-color: #334155;
+}
+
+.markdown-preview h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.markdown-preview h4,
+.markdown-preview h5,
+.markdown-preview h6 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+}
+
+.markdown-preview p {
+  margin: 0 0 0.75rem;
+}
+
+.markdown-preview a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.dark .markdown-preview a {
+  color: #60a5fa;
+}
+
+.markdown-preview strong {
+  font-weight: 700;
+}
+
+.markdown-preview em {
+  font-style: italic;
+}
+
+.markdown-preview del {
+  text-decoration: line-through;
+}
+
+.markdown-preview ul,
+.markdown-preview ol {
+  margin: 0 0 0.75rem;
+  padding-left: 1.5rem;
+}
+
+.markdown-preview ul {
+  list-style-type: disc;
+}
+
+.markdown-preview ol {
+  list-style-type: decimal;
+}
+
+.markdown-preview li {
+  margin-bottom: 0.25rem;
+}
+
+.markdown-preview li ul,
+.markdown-preview li ol {
+  margin: 0.25rem 0 0;
+}
+
+.markdown-preview blockquote {
+  margin: 0 0 0.75rem;
+  padding: 0.25rem 1rem;
+  border-left: 3px solid #94a3b8;
+  color: #64748b;
+  background: #f8fafc;
+  border-radius: 0 4px 4px 0;
+}
+
+.dark .markdown-preview blockquote {
+  border-left-color: #475569;
+  color: #94a3b8;
+  background: #1e293b;
+}
+
+.markdown-preview code {
+  font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.8125rem;
+  padding: 0.15rem 0.35rem;
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.dark .markdown-preview code {
+  background: #334155;
+}
+
+.markdown-preview pre {
+  margin: 0 0 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #f1f5f9;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+.dark .markdown-preview pre {
+  background: #0f172a;
+}
+
+.markdown-preview pre code {
+  padding: 0;
+  background: none;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.markdown-preview table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.markdown-preview th,
+.markdown-preview td {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.dark .markdown-preview th,
+.dark .markdown-preview td {
+  border-color: #334155;
+}
+
+.markdown-preview th {
+  background: #f8fafc;
+  font-weight: 600;
+}
+
+.dark .markdown-preview th {
+  background: #1e293b;
+}
+
+.markdown-preview img {
+  max-width: 100%;
+  border-radius: 6px;
+}
+
+.markdown-preview hr {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 1.5rem 0;
+}
+
+.dark .markdown-preview hr {
+  border-top-color: #334155;
+}
+
+.markdown-preview input[type="checkbox"] {
+  margin-right: 0.4rem;
+}

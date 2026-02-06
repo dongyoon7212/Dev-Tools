@@ -1,0 +1,8 @@
+# DevTools - Mini Toolkit
+# https://devtools.example.com
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://devtools.example.com/sitemap.xml

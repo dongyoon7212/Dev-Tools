@@ -1,12 +1,76 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DevTools - Mini Toolkit</title>
+
+    <!-- Primary Meta Tags -->
+    <title>DevTools - Mini Toolkit | 개발자 도구 모음</title>
+    <meta name="title" content="DevTools - Mini Toolkit | 개발자 도구 모음" />
+    <meta name="description" content="Base64, JSON, UUID, Hash, Diff, Markdown 등 개발자를 위한 필수 유틸리티 도구 모음. 빠르고 간편하게 인코딩, 포맷팅, 변환 작업을 수행하세요." />
+    <meta name="keywords" content="개발자 도구, Base64, JSON formatter, UUID generator, Hash, SHA256, MD5, Diff checker, Markdown preview, 개발 유틸리티, developer tools" />
+    <meta name="author" content="DevTools" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="Korean" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://devtools.example.com/" />
+    <meta property="og:title" content="DevTools - Mini Toolkit | 개발자 도구 모음" />
+    <meta property="og:description" content="Base64, JSON, UUID, Hash, Diff, Markdown 등 개발자를 위한 필수 유틸리티 도구 모음" />
+    <meta property="og:image" content="https://devtools.example.com/og-image.png" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:site_name" content="DevTools" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://devtools.example.com/" />
+    <meta name="twitter:title" content="DevTools - Mini Toolkit | 개발자 도구 모음" />
+    <meta name="twitter:description" content="Base64, JSON, UUID, Hash, Diff, Markdown 등 개발자를 위한 필수 유틸리티 도구 모음" />
+    <meta name="twitter:image" content="https://devtools.example.com/og-image.png" />
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="DevTools" />
+
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- DNS Prefetch -->
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+
+    <!-- Google Analytics 4 (Replace G-XXXXXXXXXX with your ID) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('SW registered:', reg.scope))
+            .catch(err => console.log('SW registration failed:', err));
+        });
+      }
+    </script>
   </body>
 </html>

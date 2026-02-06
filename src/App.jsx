@@ -1,15 +1,26 @@
-import { useState, useEffect } from 'react';
-import Base64Tool from './components/tools/Base64Tool';
-import JsonFormatterTool from './components/tools/JsonFormatterTool';
-import TimestampTool from './components/tools/TimestampTool';
-import UrlEncoderTool from './components/tools/UrlEncoderTool';
-import RegexTool from './components/tools/RegexTool';
-import ColorPickerTool from './components/tools/ColorPickerTool';
-import UuidTool from './components/tools/UuidTool';
-import HashTool from './components/tools/HashTool';
-import DiffTool from './components/tools/DiffTool';
-import CaseTool from './components/tools/CaseTool';
-import MarkdownTool from './components/tools/MarkdownTool';
+import { useState, useEffect, lazy, Suspense } from 'react';
+
+// Lazy load all tool components for code splitting
+const Base64Tool = lazy(() => import('./components/tools/Base64Tool'));
+const JsonFormatterTool = lazy(() => import('./components/tools/JsonFormatterTool'));
+const TimestampTool = lazy(() => import('./components/tools/TimestampTool'));
+const UrlEncoderTool = lazy(() => import('./components/tools/UrlEncoderTool'));
+const RegexTool = lazy(() => import('./components/tools/RegexTool'));
+const ColorPickerTool = lazy(() => import('./components/tools/ColorPickerTool'));
+const UuidTool = lazy(() => import('./components/tools/UuidTool'));
+const HashTool = lazy(() => import('./components/tools/HashTool'));
+const DiffTool = lazy(() => import('./components/tools/DiffTool'));
+const CaseTool = lazy(() => import('./components/tools/CaseTool'));
+const MarkdownTool = lazy(() => import('./components/tools/MarkdownTool'));
+
+// Loading spinner component
+function LoadingSpinner() {
+  return (
+    <div className="flex items-center justify-center py-12">
+      <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary-600 border-t-transparent" />
+    </div>
+  );
+}
 
 const categories = [
   {
@@ -306,7 +317,9 @@ export default function App() {
         {/* Tool content */}
         <main className={`p-4 sm:p-6 lg:p-8 ${activeTool === 'markdown' || activeTool === 'diff' ? 'max-w-6xl' : 'max-w-4xl'}`}>
           <div className="bg-white dark:bg-surface-900 rounded-xl border border-surface-200 dark:border-surface-800 p-5 sm:p-6 shadow-sm">
-            {ActiveComponent && <ActiveComponent />}
+            <Suspense fallback={<LoadingSpinner />}>
+              {ActiveComponent && <ActiveComponent />}
+            </Suspense>
           </div>
         </main>
       </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
+import { initGA, trackEvent, trackPageView } from './utils/analytics';
 
 // Lazy load all tool components for code splitting
 const Base64Tool = lazy(() => import('./components/tools/Base64Tool'));
@@ -199,6 +200,31 @@ export default function App() {
 
   const ActiveComponent = allTools.find((t) => t.id === activeTool)?.component;
   const activeToolData = allTools.find((t) => t.id === activeTool);
+
+  // Initialize GA on mount
+  useEffect(() => {
+    initGA();
+    trackPageView('base64', 'Base64');
+  }, []);
+
+  const handleToolSwitch = (toolId) => {
+    const tool = allTools.find((t) => t.id === toolId);
+    setActiveTool(toolId);
+    setSidebarOpen(false);
+    trackEvent('tool_switch', {
+      tool_name: tool?.name,
+      tool_id: toolId,
+    });
+    trackPageView(toolId, tool?.name);
+  };
+
+  const handleThemeToggle = () => {
+    const newTheme = !dark;
+    setDark(newTheme);
+    trackEvent('theme_toggle', {
+      theme: newTheme ? 'dark' : 'light',
+    });
+  };
 
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-950 text-surface-900 dark:text-surface-100 transition-colors">

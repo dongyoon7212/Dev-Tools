@@ -1,18 +1,29 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { useDebounce } from '../../hooks/useDebounce';
+import { useProcessingState } from '../../hooks/useProcessingState';
+import { useKeyboardShortcut } from '../../hooks/useKeyboardShortcut';
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
+import { useToast } from '../../contexts/ToastContext';
 import CopyButton from '../CopyButton';
+import EmptyState from '../EmptyState';
+import ErrorMessage from '../ErrorMessage';
 
-export default function UrlEncoderTool() {
+export default memo(function UrlEncoderTool() {
   const [mode, setMode] = useState('encode');
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
+  const [error, setError] = useState('');
   const [queryInput, setQueryInput] = useState('');
   const debouncedInput = useDebounce(input, 200);
   const debouncedQuery = useDebounce(queryInput, 300);
+  const { isProcessing } = useProcessingState(input, debouncedInput);
+  const { copy } = useCopyToClipboard();
+  const { addToast } = useToast();
 
   useEffect(() => {
     if (!debouncedInput) {
       setOutput('');
+      setError('');
       return;
     }
     try {
@@ -21,8 +32,10 @@ export default function UrlEncoderTool() {
           ? encodeURIComponent(debouncedInput)
           : decodeURIComponent(debouncedInput)
       );
+      setError('');
     } catch {
-      setOutput('Invalid input');
+      setError(mode === 'encode' ? 'Failed to encode input.' : 'Invalid encoded URL. Check the format and try again.');
+      setOutput('');
     }
   }, [debouncedInput, mode]);
 
@@ -30,10 +43,8 @@ export default function UrlEncoderTool() {
     if (!debouncedQuery.trim()) return [];
     try {
       let queryString = debouncedQuery;
-      // Extract query string from full URL if needed
       const qIndex = queryString.indexOf('?');
       if (qIndex !== -1) queryString = queryString.slice(qIndex + 1);
-      // Remove hash
       const hashIndex = queryString.indexOf('#');
       if (hashIndex !== -1) queryString = queryString.slice(0, hashIndex);
 
@@ -43,6 +54,18 @@ export default function UrlEncoderTool() {
       return [];
     }
   }, [debouncedQuery]);
+
+  const copyOutput = useCallback(() => {
+    if (output) {
+      copy(output);
+      addToast('Copied to clipboard!', 'success');
+    }
+  }, [output, copy, addToast]);
+
+  const shortcuts = useMemo(() => [
+    { key: 'c', ctrl: true, shift: true, handler: copyOutput },
+  ], [copyOutput]);
+  useKeyboardShortcut(shortcuts);
 
   return (
     <div className="space-y-6">
@@ -83,19 +106,36 @@ export default function UrlEncoderTool() {
           />
         </div>
 
+        <ErrorMessage message={error} onDismiss={() => setError('')} />
+
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-sm font-medium text-surface-600 dark:text-surface-400">
-              Output
-            </label>
-            {output && <CopyButton text={output} />}
+            <div className="flex items-center gap-2">
+              <label className="block text-sm font-medium text-surface-600 dark:text-surface-400">
+                Output
+              </label>
+              {isProcessing && (
+                <span className="flex items-center gap-1.5 text-xs text-surface-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary-400 animate-pulse" />
+                  Processing...
+                </span>
+              )}
+            </div>
+            {output && !error && <CopyButton text={output} />}
           </div>
-          <textarea
-            value={output}
-            readOnly
-            className="w-full h-24 bg-surface-50 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700 rounded-lg px-3 py-2 text-sm font-mono resize-none text-surface-700 dark:text-surface-300"
-            placeholder="Output will appear here..."
-          />
+          {!input && !output ? (
+            <EmptyState
+              title="Enter text or URL to encode/decode"
+              examples={['"hello world" → "hello%20world"']}
+            />
+          ) : (
+            <textarea
+              value={error ? '' : output}
+              readOnly
+              className="w-full h-24 bg-surface-50 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700 rounded-lg px-3 py-2 text-sm font-mono resize-none text-surface-700 dark:text-surface-300"
+              placeholder="Output will appear here..."
+            />
+          )}
         </div>
       </div>
 
@@ -140,4 +180,4 @@ export default function UrlEncoderTool() {
       </div>
     </div>
   );
-}
+});

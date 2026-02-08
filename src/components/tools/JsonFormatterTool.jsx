@@ -1,14 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { useDebounce } from '../../hooks/useDebounce';
+import { useProcessingState } from '../../hooks/useProcessingState';
+import { useKeyboardShortcut } from '../../hooks/useKeyboardShortcut';
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
+import { useToast } from '../../contexts/ToastContext';
 import CopyButton from '../CopyButton';
+import EmptyState from '../EmptyState';
+import ErrorMessage from '../ErrorMessage';
 
-export default function JsonFormatterTool() {
+export default memo(function JsonFormatterTool() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [error, setError] = useState('');
   const [indent, setIndent] = useState(2);
   const [isMinified, setIsMinified] = useState(false);
   const debouncedInput = useDebounce(input, 300);
+  const { isProcessing } = useProcessingState(input, debouncedInput);
+  const { copy } = useCopyToClipboard();
+  const { addToast } = useToast();
 
   useEffect(() => {
     if (!debouncedInput.trim()) {
@@ -29,14 +38,19 @@ export default function JsonFormatterTool() {
     }
   }, [debouncedInput, indent, isMinified]);
 
-  const handlePaste = async () => {
+  const handlePaste = useCallback(async () => {
     try {
       const text = await navigator.clipboard.readText();
       setInput(text);
     } catch {
-      // clipboard access denied
+      addToast('Unable to read clipboard. Please paste manually.', 'error');
     }
-  };
+  }, [addToast]);
+
+  const shortcuts = useMemo(() => [
+    { key: 'c', ctrl: true, shift: true, handler: () => { if (output) { copy(output); addToast('Copied to clipboard!', 'success'); } } },
+  ], [output, copy, addToast]);
+  useKeyboardShortcut(shortcuts);
 
   return (
     <div className="space-y-4">
@@ -93,11 +107,7 @@ export default function JsonFormatterTool() {
         />
       </div>
 
-      {error && (
-        <div className="text-red-500 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg font-mono">
-          <span className="font-medium">Syntax Error: </span>{error}
-        </div>
-      )}
+      <ErrorMessage message={error ? `Syntax Error: ${error}` : ''} onDismiss={() => setError('')} />
 
       {!error && debouncedInput.trim() && (
         <div className="text-green-600 dark:text-green-400 text-sm bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-lg flex items-center gap-1.5">
@@ -110,18 +120,33 @@ export default function JsonFormatterTool() {
 
       <div>
         <div className="flex items-center justify-between mb-1.5">
-          <label className="block text-sm font-medium text-surface-600 dark:text-surface-400">
-            Formatted Output
-          </label>
+          <div className="flex items-center gap-2">
+            <label className="block text-sm font-medium text-surface-600 dark:text-surface-400">
+              Formatted Output
+            </label>
+            {isProcessing && (
+              <span className="flex items-center gap-1.5 text-xs text-surface-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary-400 animate-pulse" />
+                Processing...
+              </span>
+            )}
+          </div>
           {output && <CopyButton text={output} />}
         </div>
-        <textarea
-          value={output}
-          readOnly
-          className="w-full h-48 bg-surface-50 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700 rounded-lg px-3 py-2 text-sm font-mono resize-none text-surface-700 dark:text-surface-300"
-          placeholder="Formatted JSON will appear here..."
-        />
+        {!input && !output ? (
+          <EmptyState
+            title="Paste JSON to format or validate"
+            examples={['{ "key": "value" }']}
+          />
+        ) : (
+          <textarea
+            value={output}
+            readOnly
+            className="w-full h-48 bg-surface-50 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700 rounded-lg px-3 py-2 text-sm font-mono resize-none text-surface-700 dark:text-surface-300"
+            placeholder="Formatted JSON will appear here..."
+          />
+        )}
       </div>
     </div>
   );
-}
+});

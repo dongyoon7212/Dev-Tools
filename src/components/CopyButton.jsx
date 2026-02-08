@@ -1,11 +1,18 @@
 import { useCopyToClipboard } from '../hooks/useCopyToClipboard';
+import { useToast } from '../contexts/ToastContext';
 
 export default function CopyButton({ text, className = '' }) {
   const { copied, copy } = useCopyToClipboard();
+  const { addToast } = useToast();
+
+  const handleCopy = () => {
+    copy(text);
+    addToast('Copied to clipboard!', 'success');
+  };
 
   return (
     <button
-      onClick={() => copy(text)}
+      onClick={handleCopy}
       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium
         transition-all duration-200 active:scale-95
         ${copied

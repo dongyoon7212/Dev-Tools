@@ -311,6 +311,12 @@ export default function App() {
                 {activeToolData?.description}
               </p>
             </div>
+            <div className="ml-auto hidden sm:flex items-center gap-3 text-[10px] text-surface-400 dark:text-surface-500 font-mono">
+              <span className="px-1.5 py-0.5 rounded bg-surface-100 dark:bg-surface-800">Ctrl+Enter</span>
+              <span>Action</span>
+              <span className="px-1.5 py-0.5 rounded bg-surface-100 dark:bg-surface-800">Ctrl+Shift+C</span>
+              <span>Copy</span>
+            </div>
           </div>
         </header>
 

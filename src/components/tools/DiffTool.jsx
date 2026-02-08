@@ -1,38 +1,46 @@
-import { useState, useMemo } from 'react';
-import { diffLines, diffWords } from 'diff';
+import { useState, useMemo, useCallback, memo } from 'react';
+import { diffLines } from 'diff';
+import { useKeyboardShortcut } from '../../hooks/useKeyboardShortcut';
+import EmptyState from '../EmptyState';
+import ErrorMessage from '../ErrorMessage';
 
-export default function DiffTool() {
+export default memo(function DiffTool() {
   const [left, setLeft] = useState('');
   const [right, setRight] = useState('');
-  const [viewMode, setViewMode] = useState('side'); // 'side' or 'inline'
+  const [viewMode, setViewMode] = useState('side');
   const [ignoreCase, setIgnoreCase] = useState(false);
   const [ignoreWhitespace, setIgnoreWhitespace] = useState(false);
   const [compared, setCompared] = useState(false);
+  const [error, setError] = useState('');
 
   const diffs = useMemo(() => {
     if (!compared) return null;
-
-    let l = left;
-    let r = right;
-    if (ignoreCase) {
-      l = l.toLowerCase();
-      r = r.toLowerCase();
+    try {
+      let l = left;
+      let r = right;
+      if (ignoreCase) {
+        l = l.toLowerCase();
+        r = r.toLowerCase();
+      }
+      setError('');
+      return diffLines(l, r, { ignoreWhitespace });
+    } catch (e) {
+      setError('Failed to compare texts: ' + e.message);
+      return null;
     }
-
-    return diffLines(l, r, { ignoreWhitespace });
   }, [compared, left, right, ignoreCase, ignoreWhitespace]);
 
-  const handleCompare = () => setCompared(true);
+  const handleCompare = useCallback(() => setCompared(true), []);
 
-  // Reset on edit
-  const handleLeftChange = (e) => {
+  const handleLeftChange = useCallback((e) => {
     setLeft(e.target.value);
     setCompared(false);
-  };
-  const handleRightChange = (e) => {
+  }, []);
+
+  const handleRightChange = useCallback((e) => {
     setRight(e.target.value);
     setCompared(false);
-  };
+  }, []);
 
   const stats = useMemo(() => {
     if (!diffs) return null;
@@ -46,7 +54,6 @@ export default function DiffTool() {
     return { added, removed, unchanged };
   }, [diffs]);
 
-  // Build side-by-side view data
   const sideBySideRows = useMemo(() => {
     if (!diffs) return [];
     const rows = [];
@@ -58,12 +65,10 @@ export default function DiffTool() {
       const lines = part.value.replace(/\n$/, '').split('\n');
 
       if (!part.added && !part.removed) {
-        // Unchanged
         lines.forEach((line) => {
           rows.push({ type: 'unchanged', left: line, right: line, leftNum: leftLine++, rightNum: rightLine++ });
         });
       } else if (part.removed && diffs[i + 1]?.added) {
-        // Modified: removed + added pair
         const addedLines = diffs[i + 1].value.replace(/\n$/, '').split('\n');
         const maxLen = Math.max(lines.length, addedLines.length);
         for (let j = 0; j < maxLen; j++) {
@@ -75,7 +80,7 @@ export default function DiffTool() {
             rightNum: j < addedLines.length ? rightLine++ : null,
           });
         }
-        i++; // Skip the added part
+        i++;
       } else if (part.removed) {
         lines.forEach((line) => {
           rows.push({ type: 'removed', left: line, right: null, leftNum: leftLine++, rightNum: null });
@@ -88,6 +93,11 @@ export default function DiffTool() {
     }
     return rows;
   }, [diffs]);
+
+  const shortcuts = useMemo(() => [
+    { key: 'Enter', ctrl: true, handler: handleCompare },
+  ], [handleCompare]);
+  useKeyboardShortcut(shortcuts);
 
   return (
     <div className="space-y-4">
@@ -130,6 +140,7 @@ export default function DiffTool() {
           onClick={handleCompare}
           disabled={!left && !right}
           className="px-4 py-2 rounded-lg text-sm font-medium bg-primary-600 text-white hover:bg-primary-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          title="Compare (Ctrl+Enter)"
         >
           Compare
         </button>
@@ -179,6 +190,8 @@ export default function DiffTool() {
         </label>
       </div>
 
+      <ErrorMessage message={error} onDismiss={() => setError('')} />
+
       {/* Stats */}
       {stats && (
         <div className="flex items-center gap-4 text-xs font-medium">
@@ -195,11 +208,9 @@ export default function DiffTool() {
             <tbody>
               {sideBySideRows.map((row, i) => (
                 <tr key={i}>
-                  {/* Left line number */}
                   <td className="w-8 px-2 py-0.5 text-right text-surface-400 dark:text-surface-500 bg-surface-50 dark:bg-surface-900 border-r border-surface-200 dark:border-surface-700 select-none">
                     {row.leftNum}
                   </td>
-                  {/* Left content */}
                   <td
                     className={`px-2 py-0.5 whitespace-pre-wrap border-r border-surface-200 dark:border-surface-700 ${
                       row.type === 'removed'
@@ -211,11 +222,9 @@ export default function DiffTool() {
                   >
                     {row.left ?? ''}
                   </td>
-                  {/* Right line number */}
                   <td className="w-8 px-2 py-0.5 text-right text-surface-400 dark:text-surface-500 bg-surface-50 dark:bg-surface-900 border-r border-surface-200 dark:border-surface-700 select-none">
                     {row.rightNum}
                   </td>
-                  {/* Right content */}
                   <td
                     className={`px-2 py-0.5 whitespace-pre-wrap ${
                       row.type === 'added'
@@ -261,11 +270,12 @@ export default function DiffTool() {
         </div>
       )}
 
-      {!diffs && (
-        <div className="text-sm text-surface-400 dark:text-surface-500 text-center py-8 bg-surface-50 dark:bg-surface-800/30 rounded-lg border border-dashed border-surface-300 dark:border-surface-700">
-          Enter two texts and click "Compare" to see differences
-        </div>
+      {!diffs && !error && (
+        <EmptyState
+          title='Enter two texts and click "Compare" to see differences'
+          examples={['Supports side-by-side and inline views', 'Ctrl+Enter to compare']}
+        />
       )}
     </div>
   );
-}
+});

@@ -1,7 +1,13 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, memo, useCallback } from 'react';
 import { useDebounce } from '../../hooks/useDebounce';
+import { useProcessingState } from '../../hooks/useProcessingState';
+import { useKeyboardShortcut } from '../../hooks/useKeyboardShortcut';
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
+import { useToast } from '../../contexts/ToastContext';
 import { camelCase, pascalCase, snakeCase, kebabCase, constantCase } from 'change-case';
 import CopyButton from '../CopyButton';
+import EmptyState from '../EmptyState';
+import ErrorMessage from '../ErrorMessage';
 
 function toTitleCase(str) {
   return str
@@ -21,17 +27,40 @@ const CASES = [
   { name: 'UPPER CASE', fn: (s) => s.toUpperCase() },
 ];
 
-export default function CaseTool() {
+export default memo(function CaseTool() {
   const [input, setInput] = useState('');
+  const [error, setError] = useState('');
   const debouncedInput = useDebounce(input, 200);
+  const { isProcessing } = useProcessingState(input, debouncedInput);
+  const { copy } = useCopyToClipboard();
+  const { addToast } = useToast();
 
   const results = useMemo(() => {
     if (!debouncedInput.trim()) return [];
-    return CASES.map(({ name, fn }) => ({
-      name,
-      value: fn(debouncedInput),
-    }));
+    try {
+      setError('');
+      return CASES.map(({ name, fn }) => ({
+        name,
+        value: fn(debouncedInput),
+      }));
+    } catch (e) {
+      setError('Failed to convert text: ' + e.message);
+      return [];
+    }
   }, [debouncedInput]);
+
+  const copyAll = useCallback(() => {
+    if (results.length > 0) {
+      const text = results.map((r) => `${r.name}: ${r.value}`).join('\n');
+      copy(text);
+      addToast('Copied all conversions!', 'success');
+    }
+  }, [results, copy, addToast]);
+
+  const shortcuts = useMemo(() => [
+    { key: 'c', ctrl: true, shift: true, handler: copyAll },
+  ], [copyAll]);
+  useKeyboardShortcut(shortcuts);
 
   return (
     <div className="space-y-4">
@@ -53,6 +82,16 @@ export default function CaseTool() {
         />
       </div>
 
+      <ErrorMessage message={error} onDismiss={() => setError('')} />
+
+      {/* Processing indicator */}
+      {isProcessing && input && (
+        <span className="flex items-center gap-1.5 text-xs text-surface-400">
+          <span className="w-1.5 h-1.5 rounded-full bg-primary-400 animate-pulse" />
+          Processing...
+        </span>
+      )}
+
       {/* Results Grid */}
       {results.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -73,11 +112,12 @@ export default function CaseTool() {
             </div>
           ))}
         </div>
-      ) : (
-        <div className="text-sm text-surface-400 dark:text-surface-500 text-center py-8 bg-surface-50 dark:bg-surface-800/30 rounded-lg border border-dashed border-surface-300 dark:border-surface-700">
-          Converted results will appear here as you type
-        </div>
+      ) : !error && (
+        <EmptyState
+          title="Type text to see all case conversions"
+          examples={['"hello world" → camelCase, snake_case, kebab-case...']}
+        />
       )}
     </div>
   );
-}
+});

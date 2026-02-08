@@ -3,7 +3,18 @@
     "allow": [
       "Bash(tree:*)",
       "Bash(npm install:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\")",
+      "Bash(source:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(echo:*)",
+      "Bash(while read line)",
+      "Bash(do)",
+      "Bash(done)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(for file in /Users/dongyoon/Desktop/project/Dev-Tools/src/components/tools/*.jsx)"
     ]
   }
 }

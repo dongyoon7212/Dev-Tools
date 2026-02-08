@@ -1,24 +1,50 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo, memo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { useKeyboardShortcut } from '../../hooks/useKeyboardShortcut';
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
+import { useToast } from '../../contexts/ToastContext';
 import CopyButton from '../CopyButton';
+import EmptyState from '../EmptyState';
+import ErrorMessage from '../ErrorMessage';
 
-export default function UuidTool() {
+export default memo(function UuidTool() {
   const [uuids, setUuids] = useState([]);
   const [count, setCount] = useState(1);
   const [uppercase, setUppercase] = useState(false);
   const [hyphens, setHyphens] = useState(true);
+  const [error, setError] = useState('');
+  const { copy } = useCopyToClipboard();
+  const { addToast } = useToast();
 
   const generate = useCallback(() => {
-    const list = Array.from({ length: count }, () => {
-      let id = uuidv4();
-      if (!hyphens) id = id.replace(/-/g, '');
-      if (uppercase) id = id.toUpperCase();
-      return id;
-    });
-    setUuids(list);
+    try {
+      const list = Array.from({ length: count }, () => {
+        let id = uuidv4();
+        if (!hyphens) id = id.replace(/-/g, '');
+        if (uppercase) id = id.toUpperCase();
+        return id;
+      });
+      setUuids(list);
+      setError('');
+    } catch (e) {
+      setError('Failed to generate UUIDs: ' + e.message);
+    }
   }, [count, uppercase, hyphens]);
 
   const allText = uuids.join('\n');
+
+  const copyAll = useCallback(() => {
+    if (allText) {
+      copy(allText);
+      addToast('Copied all UUIDs!', 'success');
+    }
+  }, [allText, copy, addToast]);
+
+  const shortcuts = useMemo(() => [
+    { key: 'Enter', ctrl: true, handler: generate },
+    { key: 'c', ctrl: true, shift: true, handler: copyAll },
+  ], [generate, copyAll]);
+  useKeyboardShortcut(shortcuts);
 
   return (
     <div className="space-y-4">
@@ -32,6 +58,7 @@ export default function UuidTool() {
         <button
           onClick={generate}
           className="px-4 py-2 rounded-lg text-sm font-medium bg-primary-600 text-white hover:bg-primary-700 transition-colors"
+          title="Generate UUID (Ctrl+Enter)"
         >
           Generate UUID
         </button>
@@ -69,8 +96,10 @@ export default function UuidTool() {
         </label>
       </div>
 
+      <ErrorMessage message={error} onDismiss={() => setError('')} />
+
       {/* Results */}
-      {uuids.length > 0 && (
+      {uuids.length > 0 ? (
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <label className="block text-sm font-medium text-surface-600 dark:text-surface-400">
@@ -92,13 +121,12 @@ export default function UuidTool() {
             ))}
           </div>
         </div>
-      )}
-
-      {uuids.length === 0 && (
-        <div className="text-sm text-surface-400 dark:text-surface-500 text-center py-8 bg-surface-50 dark:bg-surface-800/30 rounded-lg border border-dashed border-surface-300 dark:border-surface-700">
-          Click "Generate UUID" to create new UUIDs
-        </div>
+      ) : (
+        <EmptyState
+          title='Click "Generate UUID" to create new identifiers'
+          examples={['Format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx', 'Ctrl+Enter to generate']}
+        />
       )}
     </div>
   );
-}
+});

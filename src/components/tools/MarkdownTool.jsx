@@ -1,6 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
 import { marked } from 'marked';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
+import { useKeyboardShortcut } from '../../hooks/useKeyboardShortcut';
+import { useToast } from '../../contexts/ToastContext';
+import EmptyState from '../EmptyState';
+import ErrorMessage from '../ErrorMessage';
 
 const SAMPLE_MD = `# Markdown Preview
 
@@ -59,24 +63,36 @@ marked.setOptions({
   gfm: true,
 });
 
-export default function MarkdownTool() {
+export default memo(function MarkdownTool() {
   const [input, setInput] = useState('');
+  const [error, setError] = useState('');
   const { copied, copy } = useCopyToClipboard();
+  const { addToast } = useToast();
 
   const html = useMemo(() => {
     if (!input.trim()) return '';
     try {
+      setError('');
       return marked.parse(input);
-    } catch {
-      return '<p class="text-red-500">Failed to parse markdown</p>';
+    } catch (e) {
+      setError('Failed to parse Markdown: ' + e.message);
+      return '';
     }
   }, [input]);
 
-  const loadSample = () => setInput(SAMPLE_MD);
+  const loadSample = useCallback(() => setInput(SAMPLE_MD), []);
 
-  const copyHtml = () => {
-    if (html) copy(html);
-  };
+  const copyHtml = useCallback(() => {
+    if (html) {
+      copy(html);
+      addToast('Copied HTML to clipboard!', 'success');
+    }
+  }, [html, copy, addToast]);
+
+  const shortcuts = useMemo(() => [
+    { key: 'c', ctrl: true, shift: true, handler: copyHtml },
+  ], [copyHtml]);
+  useKeyboardShortcut(shortcuts);
 
   return (
     <div className="space-y-3">
@@ -113,6 +129,8 @@ export default function MarkdownTool() {
         </button>
       </div>
 
+      <ErrorMessage message={error} onDismiss={() => setError('')} />
+
       {/* Split View */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3" style={{ minHeight: '400px' }}>
         {/* Editor */}
@@ -135,13 +153,22 @@ export default function MarkdownTool() {
           <label className="block text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider mb-1.5">
             Preview
           </label>
-          <div
-            className="flex-1 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg px-4 py-3 overflow-y-auto markdown-preview"
-            style={{ minHeight: '380px' }}
-            dangerouslySetInnerHTML={{ __html: html || '<span class="text-surface-400 dark:text-surface-500 text-sm">Preview will appear here...</span>' }}
-          />
+          {html ? (
+            <div
+              className="flex-1 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg px-4 py-3 overflow-y-auto markdown-preview"
+              style={{ minHeight: '380px' }}
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          ) : (
+            <div className="flex-1 flex items-center justify-center bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg" style={{ minHeight: '380px' }}>
+              <EmptyState
+                title="Write Markdown to see the preview"
+                examples={['Supports GitHub Flavored Markdown']}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
-}
+});

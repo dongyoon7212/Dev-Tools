@@ -1,5 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import { useKeyboardShortcut } from '../../hooks/useKeyboardShortcut';
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
+import { useToast } from '../../contexts/ToastContext';
 import CopyButton from '../CopyButton';
+import ErrorMessage from '../ErrorMessage';
 
 function hexToRgb(hex) {
   const clean = hex.replace('#', '');
@@ -51,17 +55,21 @@ function hslToRgb({ h, s, l }) {
   };
 }
 
-export default function ColorPickerTool() {
+export default memo(function ColorPickerTool() {
   const [hex, setHex] = useState('#3b82f6');
   const [rgb, setRgb] = useState({ r: 59, g: 130, b: 246 });
   const [hsl, setHsl] = useState({ h: 217, s: 91, l: 60 });
   const [hexInput, setHexInput] = useState('#3b82f6');
+  const [hexError, setHexError] = useState('');
+  const { copy } = useCopyToClipboard();
+  const { addToast } = useToast();
 
   const updateFromRgb = useCallback((newRgb) => {
     setRgb(newRgb);
     setHex(rgbToHex(newRgb));
     setHexInput(rgbToHex(newRgb));
     setHsl(rgbToHsl(newRgb));
+    setHexError('');
   }, []);
 
   const updateFromHex = useCallback((newHex) => {
@@ -70,6 +78,7 @@ export default function ColorPickerTool() {
       setHex(newHex.startsWith('#') ? newHex : '#' + newHex);
       setRgb(parsed);
       setHsl(rgbToHsl(parsed));
+      setHexError('');
     }
   }, []);
 
@@ -80,24 +89,32 @@ export default function ColorPickerTool() {
     const newHex = rgbToHex(newRgb);
     setHex(newHex);
     setHexInput(newHex);
+    setHexError('');
   }, []);
 
   useEffect(() => {
     setHexInput(hex);
   }, [hex]);
 
-  const handleHexBlur = () => {
+  const handleHexBlur = useCallback(() => {
     const clean = hexInput.replace('#', '');
     if (/^[0-9a-fA-F]{3}$|^[0-9a-fA-F]{6}$/.test(clean)) {
       updateFromHex('#' + (clean.length === 3 ? clean.split('').map(c => c+c).join('') : clean));
+      setHexError('');
     } else {
+      setHexError('Invalid HEX color. Use format like #FF5733 or #F53.');
       setHexInput(hex);
     }
-  };
+  }, [hexInput, hex, updateFromHex]);
 
   const hexStr = hex.toUpperCase();
   const rgbStr = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
   const hslStr = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+
+  const shortcuts = useMemo(() => [
+    { key: 'c', ctrl: true, shift: true, handler: () => { copy(hexStr); addToast('Copied to clipboard!', 'success'); } },
+  ], [hexStr, copy, addToast]);
+  useKeyboardShortcut(shortcuts);
 
   return (
     <div className="space-y-5">
@@ -146,6 +163,8 @@ export default function ColorPickerTool() {
           />
         </div>
       </div>
+
+      <ErrorMessage message={hexError} onDismiss={() => setHexError('')} />
 
       {/* RGB Sliders */}
       <div className="space-y-3">
@@ -211,4 +230,4 @@ export default function ColorPickerTool() {
       </div>
     </div>
   );
-}
+});

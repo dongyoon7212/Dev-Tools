@@ -1,14 +1,23 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
 import { useDebounce } from '../../hooks/useDebounce';
+import { useProcessingState } from '../../hooks/useProcessingState';
+import { useKeyboardShortcut } from '../../hooks/useKeyboardShortcut';
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
+import { useToast } from '../../contexts/ToastContext';
 import CopyButton from '../CopyButton';
+import EmptyState from '../EmptyState';
+import ErrorMessage from '../ErrorMessage';
 
-export default function RegexTool() {
+export default memo(function RegexTool() {
   const [pattern, setPattern] = useState('');
   const [flags, setFlags] = useState('g');
   const [testString, setTestString] = useState('');
   const [error, setError] = useState('');
   const debouncedPattern = useDebounce(pattern, 200);
   const debouncedTest = useDebounce(testString, 200);
+  const { isProcessing } = useProcessingState(pattern, debouncedPattern);
+  const { copy } = useCopyToClipboard();
+  const { addToast } = useToast();
 
   const flagOptions = [
     { flag: 'g', label: 'Global' },
@@ -17,9 +26,9 @@ export default function RegexTool() {
     { flag: 's', label: 'Dot All' },
   ];
 
-  const toggleFlag = (f) => {
+  const toggleFlag = useCallback((f) => {
     setFlags((prev) => (prev.includes(f) ? prev.replace(f, '') : prev + f));
-  };
+  }, []);
 
   const { matches, highlighted } = useMemo(() => {
     if (!debouncedPattern || !debouncedTest) {
@@ -40,7 +49,7 @@ export default function RegexTool() {
             index: match.index,
             groups: match.slice(1),
           });
-          if (!match[0]) break; // prevent infinite loop on empty match
+          if (!match[0]) break;
         }
       } else {
         match = regex.exec(debouncedTest);
@@ -53,7 +62,6 @@ export default function RegexTool() {
         }
       }
 
-      // Build highlighted string
       let parts = [];
       let lastIndex = 0;
       const colors = ['bg-yellow-200 dark:bg-yellow-800', 'bg-green-200 dark:bg-green-800', 'bg-blue-200 dark:bg-blue-800', 'bg-pink-200 dark:bg-pink-800'];
@@ -71,10 +79,23 @@ export default function RegexTool() {
 
       return { matches: matchList, highlighted: parts };
     } catch (e) {
-      setError(e.message);
+      setError('Invalid regex: ' + e.message);
       return { matches: [], highlighted: null };
     }
   }, [debouncedPattern, debouncedTest, flags]);
+
+  const copyMatches = useCallback(() => {
+    if (matches.length > 0) {
+      const text = matches.map((m) => m.value).join('\n');
+      copy(text);
+      addToast('Copied all matches!', 'success');
+    }
+  }, [matches, copy, addToast]);
+
+  const shortcuts = useMemo(() => [
+    { key: 'c', ctrl: true, shift: true, handler: copyMatches },
+  ], [copyMatches]);
+  useKeyboardShortcut(shortcuts);
 
   return (
     <div className="space-y-4">
@@ -111,16 +132,20 @@ export default function RegexTool() {
         ))}
       </div>
 
-      {error && (
-        <div className="text-red-500 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg font-mono">
-          {error}
-        </div>
-      )}
+      <ErrorMessage message={error} onDismiss={() => setError('')} />
 
       <div>
-        <label className="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1.5">
-          Test String
-        </label>
+        <div className="flex items-center gap-2 mb-1.5">
+          <label className="block text-sm font-medium text-surface-600 dark:text-surface-400">
+            Test String
+          </label>
+          {isProcessing && (
+            <span className="flex items-center gap-1.5 text-xs text-surface-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary-400 animate-pulse" />
+              Processing...
+            </span>
+          )}
+        </div>
         <textarea
           value={testString}
           onChange={(e) => setTestString(e.target.value)}
@@ -178,6 +203,13 @@ export default function RegexTool() {
           </div>
         </div>
       )}
+
+      {!pattern && !testString && (
+        <EmptyState
+          title="Enter a regex pattern and test string to find matches"
+          examples={['/\\d+/g matches "abc 123 def 456"']}
+        />
+      )}
     </div>
   );
-}
+});

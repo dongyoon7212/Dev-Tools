@@ -119,25 +119,26 @@ export default memo(function TimestampTool() {
   useKeyboardShortcut(shortcuts);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* Current time */}
-      <div className="bg-gradient-to-r from-primary-500/10 to-primary-600/10 dark:from-primary-500/20 dark:to-primary-600/20 rounded-xl p-4 border border-primary-200 dark:border-primary-800">
-        <div className="text-xs font-medium text-primary-600 dark:text-primary-400 uppercase tracking-wider mb-1">
+      <div className="bg-gradient-to-r from-primary-500/10 to-primary-600/10 dark:from-primary-500/20 dark:to-primary-600/20 rounded-2xl p-5 border border-primary-200 dark:border-primary-800">
+        <div className="text-xs font-bold text-primary-600 dark:text-primary-400 uppercase tracking-widest mb-2">
           Current Unix Timestamp
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-2xl font-mono font-bold text-primary-700 dark:text-primary-300">
+        <div className="flex items-center gap-4">
+          <span className="text-3xl font-mono font-bold text-primary-700 dark:text-primary-300 tabular-nums">
             {currentTimestamp}
           </span>
           <CopyButton text={currentTimestamp.toString()} />
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      {/* Options */}
+      <div className="flex items-center gap-3 flex-wrap">
         <select
           value={unit}
           onChange={(e) => setUnit(e.target.value)}
-          className="px-3 py-2 rounded-lg text-sm bg-surface-100 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 text-surface-700 dark:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          className="px-4 py-2.5 rounded-xl text-sm bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
         >
           <option value="seconds">Seconds</option>
           <option value="milliseconds">Milliseconds</option>
@@ -145,7 +146,7 @@ export default memo(function TimestampTool() {
         <select
           value={timezone}
           onChange={(e) => setTimezone(e.target.value)}
-          className="px-3 py-2 rounded-lg text-sm bg-surface-100 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 text-surface-700 dark:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          className="px-4 py-2.5 rounded-xl text-sm bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
         >
           {TIMEZONES.map((tz) => (
             <option key={tz} value={tz}>{tz.replace('_', ' ')}</option>
@@ -153,10 +154,11 @@ export default memo(function TimestampTool() {
         </select>
       </div>
 
-      {/* Timestamp to Date */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1.5">
+      {/* Converters */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* Timestamp → Date */}
+        <div className="p-5 bg-surface-50 dark:bg-surface-800/50 rounded-xl border border-surface-200 dark:border-surface-700">
+          <label className="block text-sm font-bold text-surface-700 dark:text-surface-300 mb-3">
             Timestamp → Date
           </label>
           <input
@@ -164,56 +166,61 @@ export default memo(function TimestampTool() {
             value={inputTimestamp}
             onChange={(e) => setInputTimestamp(e.target.value)}
             placeholder={`e.g. ${currentTimestamp}`}
-            className="w-full bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-500 placeholder:text-surface-400 dark:placeholder:text-surface-500"
+            className="w-full bg-white dark:bg-surface-800 border-2 border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:border-primary-400 dark:focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all duration-200 placeholder:text-surface-300 dark:placeholder:text-surface-600 text-surface-800 dark:text-surface-100"
           />
           {inputTimestamp && (
-            <>
+            <div className="mt-3 space-y-2">
               <ErrorMessage message={tsResult.error} />
               {tsResult.value && (
-                <div className="mt-2 space-y-1">
+                <>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-surface-700 dark:text-surface-300 font-mono">
+                    <span className="text-sm text-surface-700 dark:text-surface-200 font-mono">
                       {tsResult.value}
                     </span>
                     <CopyButton text={tsResult.value} />
                   </div>
                   {iso && (
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-surface-500 font-mono">
+                      <span className="text-xs text-surface-500 dark:text-surface-400 font-mono break-all">
                         ISO: {iso}
                       </span>
                       <CopyButton text={iso} />
                     </div>
                   )}
-                  <div className="text-xs text-surface-400">{relative}</div>
-                </div>
+                  {relative && (
+                    <div className="text-xs font-semibold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 px-2.5 py-1 rounded-lg inline-block">
+                      {relative}
+                    </div>
+                  )}
+                </>
               )}
-            </>
+            </div>
           )}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1.5">
+        {/* Date → Timestamp */}
+        <div className="p-5 bg-surface-50 dark:bg-surface-800/50 rounded-xl border border-surface-200 dark:border-surface-700">
+          <label className="block text-sm font-bold text-surface-700 dark:text-surface-300 mb-3">
             Date → Timestamp
           </label>
           <input
             type="datetime-local"
             value={inputDate}
             onChange={(e) => setInputDate(e.target.value)}
-            className="w-full bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="w-full bg-white dark:bg-surface-800 border-2 border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary-400 dark:focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all duration-200 text-surface-800 dark:text-surface-100"
           />
           {inputDate && (
-            <>
+            <div className="mt-3">
               <ErrorMessage message={dateResult.error} />
               {dateResult.value && (
-                <div className="mt-2 flex items-center gap-2">
-                  <span className="text-sm text-surface-700 dark:text-surface-300 font-mono">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-surface-700 dark:text-surface-200 font-mono font-bold">
                     {dateResult.value}
                   </span>
                   <CopyButton text={dateResult.value} />
                 </div>
               )}
-            </>
+            </div>
           )}
         </div>
       </div>

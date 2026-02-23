@@ -63,54 +63,60 @@ export default memo(function CaseTool() {
   useKeyboardShortcut(shortcuts);
 
   return (
-    <div className="space-y-4">
-      {/* Guide */}
-      <p className="text-xs text-surface-500 dark:text-surface-400">
-        Type text below to convert it to various naming conventions in real time.
-      </p>
-
+    <div className="space-y-6">
       {/* Input */}
       <div>
-        <label className="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1.5">
-          Input Text
-        </label>
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-sm font-semibold text-surface-700 dark:text-surface-300">
+            Input Text
+          </label>
+          {isProcessing && input && (
+            <span className="flex items-center gap-1.5 text-xs text-surface-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary-400 animate-pulse" />
+              Processing...
+            </span>
+          )}
+        </div>
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder='e.g. "hello world example"'
-          className="w-full h-20 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none placeholder:text-surface-400 dark:placeholder:text-surface-500"
+          className="w-full h-36 bg-white dark:bg-surface-800 border-2 border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:border-primary-400 dark:focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all duration-200 resize-none placeholder:text-surface-300 dark:placeholder:text-surface-600 text-surface-800 dark:text-surface-100"
         />
       </div>
 
       <ErrorMessage message={error} onDismiss={() => setError('')} />
 
-      {/* Processing indicator */}
-      {isProcessing && input && (
-        <span className="flex items-center gap-1.5 text-xs text-surface-400">
-          <span className="w-1.5 h-1.5 rounded-full bg-primary-400 animate-pulse" />
-          Processing...
-        </span>
-      )}
-
       {/* Results Grid */}
       {results.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          {results.map(({ name, value }) => (
-            <div
-              key={name}
-              className="bg-surface-50 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700 rounded-lg p-3"
+        <div className="card-pop">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm font-semibold text-surface-700 dark:text-surface-300">Conversions</span>
+            <button
+              onClick={copyAll}
+              className="text-xs px-3 py-1.5 rounded-lg bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700 transition-all duration-200"
             >
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-semibold text-primary-600 dark:text-primary-400">
-                  {name}
-                </span>
-                <CopyButton text={value} />
+              Copy All
+            </button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {results.map(({ name, value }) => (
+              <div
+                key={name}
+                className="bg-surface-50 dark:bg-surface-800/60 border border-surface-200 dark:border-surface-700 rounded-xl p-4 hover:border-primary-300 dark:hover:border-primary-700 transition-all duration-200"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-primary-600 dark:text-primary-400">
+                    {name}
+                  </span>
+                  <CopyButton text={value} />
+                </div>
+                <code className="text-sm font-mono text-surface-700 dark:text-surface-200 break-all block select-all">
+                  {value}
+                </code>
               </div>
-              <code className="text-sm font-mono text-surface-700 dark:text-surface-300 break-all block select-all">
-                {value}
-              </code>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       ) : !error && (
         <EmptyState

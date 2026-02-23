@@ -17,8 +17,11 @@ const MarkdownTool = lazy(() => import('./components/tools/MarkdownTool'));
 // Loading spinner component
 function LoadingSpinner() {
   return (
-    <div className="flex items-center justify-center py-12">
-      <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary-600 border-t-transparent" />
+    <div className="flex items-center justify-center py-20">
+      <div className="flex flex-col items-center gap-3">
+        <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary-600 border-t-transparent" />
+        <span className="text-sm text-surface-400">Loading tool...</span>
+      </div>
     </div>
   );
 }
@@ -208,22 +211,18 @@ export default function App() {
   }, []);
 
   const handleToolSwitch = (toolId) => {
+    if (toolId === activeTool) { setSidebarOpen(false); return; }
     const tool = allTools.find((t) => t.id === toolId);
     setActiveTool(toolId);
     setSidebarOpen(false);
-    trackEvent('tool_switch', {
-      tool_name: tool?.name,
-      tool_id: toolId,
-    });
+    trackEvent('tool_switch', { tool_name: tool?.name, tool_id: toolId });
     trackPageView(toolId, tool?.name);
   };
 
   const handleThemeToggle = () => {
     const newTheme = !dark;
     setDark(newTheme);
-    trackEvent('theme_toggle', {
-      theme: newTheme ? 'dark' : 'light',
-    });
+    trackEvent('theme_toggle', { theme: newTheme ? 'dark' : 'light' });
   };
 
   return (
@@ -231,39 +230,39 @@ export default function App() {
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden backdrop-blur-sm"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-40 h-screen w-64 bg-white dark:bg-surface-900 border-r border-surface-200 dark:border-surface-800 transition-transform lg:translate-x-0 ${
+        className={`fixed top-0 left-0 z-40 h-screen w-72 bg-white dark:bg-surface-900 border-r border-surface-200 dark:border-surface-800 transition-transform duration-300 ease-in-out lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="px-5 py-5 border-b border-surface-200 dark:border-surface-800">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+          <div className="px-6 py-5 border-b border-surface-200 dark:border-surface-800">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center shadow-md shadow-primary-500/30">
                 <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.049.58.025 1.194-.14 1.743" />
                 </svg>
               </div>
               <div>
-                <h1 className="text-sm font-bold text-surface-900 dark:text-white">DevTools</h1>
-                <p className="text-xs text-surface-500 dark:text-surface-400">Mini Toolkit</p>
+                <h1 className="text-sm font-bold text-surface-900 dark:text-white tracking-tight">DevTools</h1>
+                <p className="text-xs text-surface-400 dark:text-surface-500">Mini Toolkit</p>
               </div>
             </div>
           </div>
 
           {/* Navigation with categories */}
-          <nav className="flex-1 overflow-y-auto py-3 px-3">
+          <nav className="flex-1 overflow-y-auto py-4 px-3">
             {categories.map((category) => (
-              <div key={category.name} className="mb-3">
-                <div className="px-3 mb-1">
-                  <span className="text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider">
+              <div key={category.name} className="mb-5">
+                <div className="px-3 mb-2">
+                  <span className="text-[10px] font-bold text-surface-400 dark:text-surface-500 uppercase tracking-widest">
                     {category.name}
                   </span>
                 </div>
@@ -271,23 +270,23 @@ export default function App() {
                   {category.tools.map((tool) => (
                     <button
                       key={tool.id}
-                      onClick={() => {
-                        setActiveTool(tool.id);
-                        setSidebarOpen(false);
-                      }}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors ${
+                      onClick={() => handleToolSwitch(tool.id)}
+                      className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-left transition-all duration-200 group ${
                         activeTool === tool.id
-                          ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
-                          : 'text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800'
+                          ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 shadow-sm'
+                          : 'text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 hover:text-surface-900 dark:hover:text-surface-200'
                       }`}
                     >
-                      <span className={activeTool === tool.id ? 'text-primary-600 dark:text-primary-400' : ''}>
+                      <span className={`transition-transform duration-200 group-hover:scale-110 ${activeTool === tool.id ? 'text-primary-600 dark:text-primary-400' : ''}`}>
                         {tool.icon}
                       </span>
                       <div>
-                        <div className="text-sm font-medium">{tool.name}</div>
-                        <div className="text-xs text-surface-400 dark:text-surface-500">{tool.description}</div>
+                        <div className="text-sm font-semibold leading-tight">{tool.name}</div>
+                        <div className="text-xs text-surface-400 dark:text-surface-500 leading-tight mt-0.5">{tool.description}</div>
                       </div>
+                      {activeTool === tool.id && (
+                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-500" />
+                      )}
                     </button>
                   ))}
                 </div>
@@ -298,57 +297,63 @@ export default function App() {
           {/* Dark mode toggle */}
           <div className="px-4 py-4 border-t border-surface-200 dark:border-surface-800">
             <button
-              onClick={() => setDark(!dark)}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
+              onClick={handleThemeToggle}
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 hover:text-surface-900 dark:hover:text-surface-200 transition-all duration-200 group"
             >
-              {dark ? (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                </svg>
-              )}
-              <span>{dark ? 'Light Mode' : 'Dark Mode'}</span>
+              <span className="transition-transform duration-200 group-hover:scale-110">
+                {dark ? (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                  </svg>
+                )}
+              </span>
+              <span className="font-medium">{dark ? 'Light Mode' : 'Dark Mode'}</span>
             </button>
           </div>
         </div>
       </aside>
 
       {/* Main content */}
-      <div className="lg:ml-64 min-h-screen">
+      <div className="lg:ml-72 min-h-screen flex flex-col">
         {/* Top bar */}
-        <header className="sticky top-0 z-20 bg-white/80 dark:bg-surface-900/80 backdrop-blur-md border-b border-surface-200 dark:border-surface-800">
-          <div className="flex items-center gap-3 px-4 py-3 sm:px-6">
+        <header className="sticky top-0 z-20 bg-white/90 dark:bg-surface-900/90 backdrop-blur-md border-b border-surface-200 dark:border-surface-800">
+          <div className="flex items-center gap-4 px-5 py-4 sm:px-8">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 -ml-2 rounded-lg text-surface-500 hover:bg-surface-100 dark:hover:bg-surface-800"
+              className="lg:hidden p-2 -ml-2 rounded-xl text-surface-500 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
               </svg>
             </button>
             <div>
-              <h2 className="text-lg font-semibold text-surface-900 dark:text-white">
+              <h2 className="text-lg font-bold text-surface-900 dark:text-white leading-tight">
                 {activeToolData?.name}
               </h2>
-              <p className="text-xs text-surface-500 dark:text-surface-400">
+              <p className="text-xs text-surface-400 dark:text-surface-500">
                 {activeToolData?.description}
               </p>
             </div>
-            <div className="ml-auto hidden sm:flex items-center gap-3 text-[10px] text-surface-400 dark:text-surface-500 font-mono">
-              <span className="px-1.5 py-0.5 rounded bg-surface-100 dark:bg-surface-800">Ctrl+Enter</span>
-              <span>Action</span>
-              <span className="px-1.5 py-0.5 rounded bg-surface-100 dark:bg-surface-800">Ctrl+Shift+C</span>
-              <span>Copy</span>
+            <div className="ml-auto hidden sm:flex items-center gap-2 text-[11px] text-surface-400 dark:text-surface-500 font-mono">
+              <kbd className="px-2 py-1 rounded-md bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-500 dark:text-surface-400">Ctrl+Enter</kbd>
+              <span className="text-surface-300 dark:text-surface-600">Action</span>
+              <span className="mx-1 text-surface-200 dark:text-surface-700">·</span>
+              <kbd className="px-2 py-1 rounded-md bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-500 dark:text-surface-400">Ctrl+Shift+C</kbd>
+              <span className="text-surface-300 dark:text-surface-600">Copy</span>
             </div>
           </div>
         </header>
 
         {/* Tool content */}
-        <main className={`p-4 sm:p-6 lg:p-8 ${activeTool === 'markdown' || activeTool === 'diff' ? 'max-w-6xl' : 'max-w-4xl'}`}>
-          <div className="bg-white dark:bg-surface-900 rounded-xl border border-surface-200 dark:border-surface-800 p-5 sm:p-6 shadow-sm">
+        <main className="flex-1 p-5 sm:p-8 lg:p-10">
+          <div
+            key={activeTool}
+            className="tool-fade-in bg-white dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-800 p-6 sm:p-8 shadow-sm"
+          >
             <Suspense fallback={<LoadingSpinner />}>
               {ActiveComponent && <ActiveComponent />}
             </Suspense>

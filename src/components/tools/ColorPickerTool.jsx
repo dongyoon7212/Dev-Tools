@@ -99,7 +99,7 @@ export default memo(function ColorPickerTool() {
   const handleHexBlur = useCallback(() => {
     const clean = hexInput.replace('#', '');
     if (/^[0-9a-fA-F]{3}$|^[0-9a-fA-F]{6}$/.test(clean)) {
-      updateFromHex('#' + (clean.length === 3 ? clean.split('').map(c => c+c).join('') : clean));
+      updateFromHex('#' + (clean.length === 3 ? clean.split('').map(c => c + c).join('') : clean));
       setHexError('');
     } else {
       setHexError('Invalid HEX color. Use format like #FF5733 or #F53.');
@@ -117,49 +117,48 @@ export default memo(function ColorPickerTool() {
   useKeyboardShortcut(shortcuts);
 
   return (
-    <div className="space-y-5">
-      {/* Color Preview */}
-      <div className="flex items-stretch gap-4">
+    <div className="space-y-6">
+      {/* Color Preview + Values */}
+      <div className="flex items-stretch gap-5 p-5 bg-surface-50 dark:bg-surface-800/50 rounded-2xl border border-surface-200 dark:border-surface-700">
         <div
-          className="w-28 h-28 rounded-xl border-2 border-surface-200 dark:border-surface-600 shadow-inner shrink-0"
+          className="w-32 h-32 rounded-2xl border-2 border-white dark:border-surface-600 shadow-lg shrink-0 transition-all duration-300"
           style={{ backgroundColor: hex }}
         />
-        <div className="flex-1 space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-surface-500 dark:text-surface-400 w-8">HEX</span>
-            <span className="font-mono text-sm text-surface-700 dark:text-surface-300">{hexStr}</span>
-            <CopyButton text={hexStr} />
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-surface-500 dark:text-surface-400 w-8">RGB</span>
-            <span className="font-mono text-sm text-surface-700 dark:text-surface-300">{rgbStr}</span>
-            <CopyButton text={rgbStr} />
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-surface-500 dark:text-surface-400 w-8">HSL</span>
-            <span className="font-mono text-sm text-surface-700 dark:text-surface-300">{hslStr}</span>
-            <CopyButton text={hslStr} />
-          </div>
+        <div className="flex-1 space-y-3 py-1">
+          {[
+            { label: 'HEX', value: hexStr },
+            { label: 'RGB', value: rgbStr },
+            { label: 'HSL', value: hslStr },
+          ].map(({ label, value }) => (
+            <div key={label} className="flex items-center gap-3">
+              <span className="text-xs font-bold text-surface-400 dark:text-surface-500 w-10 uppercase tracking-wider">{label}</span>
+              <span className="font-mono text-sm text-surface-700 dark:text-surface-200 flex-1">{value}</span>
+              <CopyButton text={value} />
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Color Picker Input */}
-      <div className="flex items-center gap-3">
-        <input
-          type="color"
-          value={hex}
-          onChange={(e) => updateFromHex(e.target.value)}
-          className="w-12 h-10 rounded-lg border border-surface-300 dark:border-surface-600 cursor-pointer bg-transparent"
-        />
+      {/* Color Picker */}
+      <div className="flex items-end gap-4">
+        <div>
+          <label className="block text-xs font-semibold text-surface-500 dark:text-surface-400 mb-2 uppercase tracking-wider">Picker</label>
+          <input
+            type="color"
+            value={hex}
+            onChange={(e) => updateFromHex(e.target.value)}
+            className="w-16 h-12 rounded-xl border-2 border-surface-200 dark:border-surface-600 cursor-pointer bg-transparent p-1 transition-all hover:border-primary-400"
+          />
+        </div>
         <div className="flex-1">
-          <label className="block text-xs font-medium text-surface-500 dark:text-surface-400 mb-1">HEX</label>
+          <label className="block text-xs font-semibold text-surface-500 dark:text-surface-400 mb-2 uppercase tracking-wider">HEX Value</label>
           <input
             type="text"
             value={hexInput}
             onChange={(e) => setHexInput(e.target.value)}
             onBlur={handleHexBlur}
             onKeyDown={(e) => e.key === 'Enter' && handleHexBlur()}
-            className="w-full bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="w-full bg-white dark:bg-surface-800 border-2 border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:border-primary-400 dark:focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all duration-200 text-surface-800 dark:text-surface-100"
           />
         </div>
       </div>
@@ -167,22 +166,22 @@ export default memo(function ColorPickerTool() {
       <ErrorMessage message={hexError} onDismiss={() => setHexError('')} />
 
       {/* RGB Sliders */}
-      <div className="space-y-3">
-        <h4 className="text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">RGB</h4>
+      <div className="space-y-4">
+        <h4 className="text-xs font-bold text-surface-500 dark:text-surface-400 uppercase tracking-widest">RGB Channels</h4>
         {[
-          { label: 'R', key: 'r', color: 'accent-red-500' },
-          { label: 'G', key: 'g', color: 'accent-green-500' },
-          { label: 'B', key: 'b', color: 'accent-blue-500' },
+          { label: 'R', key: 'r', color: 'accent-red-500', bg: 'bg-red-100 dark:bg-red-900/30' },
+          { label: 'G', key: 'g', color: 'accent-green-500', bg: 'bg-green-100 dark:bg-green-900/30' },
+          { label: 'B', key: 'b', color: 'accent-blue-500', bg: 'bg-blue-100 dark:bg-blue-900/30' },
         ].map(({ label, key, color }) => (
-          <div key={key} className="flex items-center gap-3">
-            <span className="text-xs font-mono text-surface-500 w-4">{label}</span>
+          <div key={key} className="flex items-center gap-4">
+            <span className="text-xs font-bold text-surface-500 dark:text-surface-400 w-4">{label}</span>
             <input
               type="range"
               min="0"
               max="255"
               value={rgb[key]}
               onChange={(e) => updateFromRgb({ ...rgb, [key]: Number(e.target.value) })}
-              className={`flex-1 h-2 rounded-lg appearance-none cursor-pointer ${color} bg-surface-200 dark:bg-surface-700`}
+              className={`flex-1 h-2.5 rounded-full appearance-none cursor-pointer ${color} bg-surface-200 dark:bg-surface-700`}
             />
             <input
               type="number"
@@ -190,40 +189,40 @@ export default memo(function ColorPickerTool() {
               max="255"
               value={rgb[key]}
               onChange={(e) => updateFromRgb({ ...rgb, [key]: Math.min(255, Math.max(0, Number(e.target.value))) })}
-              className="w-16 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg px-2 py-1 text-sm font-mono text-center focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-16 bg-white dark:bg-surface-800 border-2 border-surface-200 dark:border-surface-700 rounded-lg px-2 py-1.5 text-sm font-mono text-center focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
             />
           </div>
         ))}
       </div>
 
       {/* HSL Sliders */}
-      <div className="space-y-3">
-        <h4 className="text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">HSL</h4>
+      <div className="space-y-4">
+        <h4 className="text-xs font-bold text-surface-500 dark:text-surface-400 uppercase tracking-widest">HSL</h4>
         {[
           { label: 'H', key: 'h', max: 360, suffix: '°' },
           { label: 'S', key: 's', max: 100, suffix: '%' },
           { label: 'L', key: 'l', max: 100, suffix: '%' },
         ].map(({ label, key, max, suffix }) => (
-          <div key={key} className="flex items-center gap-3">
-            <span className="text-xs font-mono text-surface-500 w-4">{label}</span>
+          <div key={key} className="flex items-center gap-4">
+            <span className="text-xs font-bold text-surface-500 dark:text-surface-400 w-4">{label}</span>
             <input
               type="range"
               min="0"
               max={max}
               value={hsl[key]}
               onChange={(e) => updateFromHsl({ ...hsl, [key]: Number(e.target.value) })}
-              className="flex-1 h-2 rounded-lg appearance-none cursor-pointer accent-primary-500 bg-surface-200 dark:bg-surface-700"
+              className="flex-1 h-2.5 rounded-full appearance-none cursor-pointer accent-primary-500 bg-surface-200 dark:bg-surface-700"
             />
-            <div className="w-16 flex items-center">
+            <div className="w-16 flex items-center gap-0.5">
               <input
                 type="number"
                 min="0"
                 max={max}
                 value={hsl[key]}
                 onChange={(e) => updateFromHsl({ ...hsl, [key]: Math.min(max, Math.max(0, Number(e.target.value))) })}
-                className="w-12 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg px-2 py-1 text-sm font-mono text-center focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-12 bg-white dark:bg-surface-800 border-2 border-surface-200 dark:border-surface-700 rounded-lg px-2 py-1.5 text-sm font-mono text-center focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
               />
-              <span className="text-xs text-surface-400 ml-0.5">{suffix}</span>
+              <span className="text-xs text-surface-400">{suffix}</span>
             </div>
           </div>
         ))}

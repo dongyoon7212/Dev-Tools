@@ -58,16 +58,11 @@ export default memo(function HashTool() {
   useKeyboardShortcut(shortcuts);
 
   return (
-    <div className="space-y-4">
-      {/* Guide */}
-      <p className="text-xs text-surface-500 dark:text-surface-400">
-        Enter text below to generate hashes in multiple algorithms simultaneously.
-      </p>
-
+    <div className="space-y-6">
       {/* Input */}
       <div>
-        <div className="flex items-center gap-2 mb-1.5">
-          <label className="block text-sm font-medium text-surface-600 dark:text-surface-400">
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-sm font-semibold text-surface-700 dark:text-surface-300">
             Input Text
           </label>
           {isProcessing && (
@@ -81,7 +76,7 @@ export default memo(function HashTool() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Enter text to hash..."
-          className="w-full h-28 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none placeholder:text-surface-400 dark:placeholder:text-surface-500"
+          className="w-full h-40 bg-white dark:bg-surface-800 border-2 border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:border-primary-400 dark:focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all duration-200 resize-none placeholder:text-surface-300 dark:placeholder:text-surface-600 text-surface-800 dark:text-surface-100"
         />
       </div>
 
@@ -89,19 +84,28 @@ export default memo(function HashTool() {
 
       {/* Hash Results */}
       {hashes.length > 0 ? (
-        <div className="space-y-3">
+        <div className="space-y-3 card-pop">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold text-surface-700 dark:text-surface-300">Results</span>
+            <button
+              onClick={copyAll}
+              className="text-xs px-3 py-1.5 rounded-lg bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700 transition-all duration-200"
+            >
+              Copy All
+            </button>
+          </div>
           {hashes.map(({ name, value }) => (
             <div
               key={name}
-              className="bg-surface-50 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700 rounded-lg p-3"
+              className="bg-surface-50 dark:bg-surface-800/60 border border-surface-200 dark:border-surface-700 rounded-xl p-4 hover:border-primary-300 dark:hover:border-primary-700 transition-all duration-200"
             >
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wider">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-primary-600 dark:text-primary-400 uppercase tracking-wider">
                   {name}
                 </span>
                 <CopyButton text={value} />
               </div>
-              <code className="text-sm font-mono text-surface-700 dark:text-surface-300 break-all block select-all">
+              <code className="text-sm font-mono text-surface-700 dark:text-surface-200 break-all block select-all leading-relaxed">
                 {value}
               </code>
             </div>

@@ -47,17 +47,12 @@ export default memo(function UuidTool() {
   useKeyboardShortcut(shortcuts);
 
   return (
-    <div className="space-y-4">
-      {/* Guide */}
-      <p className="text-xs text-surface-500 dark:text-surface-400">
-        Generate random UUID v4 identifiers. Customize the format and quantity below.
-      </p>
-
+    <div className="space-y-6">
       {/* Controls */}
       <div className="flex items-center gap-3 flex-wrap">
         <button
           onClick={generate}
-          className="px-4 py-2 rounded-lg text-sm font-medium bg-primary-600 text-white hover:bg-primary-700 transition-colors"
+          className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-primary-600 text-white hover:bg-primary-700 active:scale-95 transition-all duration-200 shadow-sm shadow-primary-500/30"
           title="Generate UUID (Ctrl+Enter)"
         >
           Generate UUID
@@ -66,7 +61,7 @@ export default memo(function UuidTool() {
         <select
           value={count}
           onChange={(e) => setCount(Number(e.target.value))}
-          className="px-3 py-2 rounded-lg text-sm bg-surface-100 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 text-surface-700 dark:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          className="px-4 py-2.5 rounded-xl text-sm bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
         >
           <option value={1}>1 UUID</option>
           <option value={5}>5 UUIDs</option>
@@ -75,24 +70,24 @@ export default memo(function UuidTool() {
       </div>
 
       {/* Format Options */}
-      <div className="flex items-center gap-4">
-        <label className="flex items-center gap-2 text-sm text-surface-600 dark:text-surface-400 cursor-pointer">
+      <div className="flex items-center gap-6 p-4 bg-surface-50 dark:bg-surface-800/50 rounded-xl border border-surface-200 dark:border-surface-700">
+        <label className="flex items-center gap-2.5 text-sm text-surface-600 dark:text-surface-400 cursor-pointer select-none">
           <input
             type="checkbox"
             checked={uppercase}
             onChange={(e) => setUppercase(e.target.checked)}
-            className="rounded border-surface-300 dark:border-surface-600 text-primary-600 focus:ring-primary-500"
+            className="w-4 h-4 rounded border-surface-300 dark:border-surface-600 text-primary-600 focus:ring-primary-500"
           />
-          Uppercase
+          <span className="font-medium">Uppercase</span>
         </label>
-        <label className="flex items-center gap-2 text-sm text-surface-600 dark:text-surface-400 cursor-pointer">
+        <label className="flex items-center gap-2.5 text-sm text-surface-600 dark:text-surface-400 cursor-pointer select-none">
           <input
             type="checkbox"
             checked={hyphens}
             onChange={(e) => setHyphens(e.target.checked)}
-            className="rounded border-surface-300 dark:border-surface-600 text-primary-600 focus:ring-primary-500"
+            className="w-4 h-4 rounded border-surface-300 dark:border-surface-600 text-primary-600 focus:ring-primary-500"
           />
-          Include hyphens
+          <span className="font-medium">Include hyphens</span>
         </label>
       </div>
 
@@ -100,20 +95,20 @@ export default memo(function UuidTool() {
 
       {/* Results */}
       {uuids.length > 0 ? (
-        <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-sm font-medium text-surface-600 dark:text-surface-400">
+        <div className="card-pop">
+          <div className="flex items-center justify-between mb-3">
+            <label className="block text-sm font-semibold text-surface-700 dark:text-surface-300">
               Generated UUIDs ({uuids.length})
             </label>
-            <CopyButton text={allText} className="" />
+            <CopyButton text={allText} />
           </div>
-          <div className="space-y-1.5 max-h-80 overflow-y-auto">
+          <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
             {uuids.map((id, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between gap-2 bg-surface-50 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700 rounded-lg px-3 py-2"
+                className="flex items-center justify-between gap-3 bg-surface-50 dark:bg-surface-800/60 border border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3 hover:border-primary-300 dark:hover:border-primary-700 transition-all duration-200 group"
               >
-                <code className="text-sm font-mono text-surface-700 dark:text-surface-300 break-all select-all">
+                <code className="text-sm font-mono text-surface-700 dark:text-surface-200 break-all select-all flex-1">
                   {id}
                 </code>
                 <CopyButton text={id} />

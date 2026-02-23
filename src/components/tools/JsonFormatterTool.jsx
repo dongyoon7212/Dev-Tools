@@ -53,33 +53,36 @@ export default memo(function JsonFormatterTool() {
   useKeyboardShortcut(shortcuts);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Controls */}
       <div className="flex items-center gap-2 flex-wrap">
-        <button
-          onClick={() => setIsMinified(false)}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            !isMinified
-              ? 'bg-primary-600 text-white'
-              : 'bg-surface-100 text-surface-600 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-300'
-          }`}
-        >
-          Beautify
-        </button>
-        <button
-          onClick={() => setIsMinified(true)}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            isMinified
-              ? 'bg-primary-600 text-white'
-              : 'bg-surface-100 text-surface-600 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-300'
-          }`}
-        >
-          Minify
-        </button>
+        <div className="flex items-center gap-1 p-1 bg-surface-100 dark:bg-surface-800 rounded-xl">
+          <button
+            onClick={() => setIsMinified(false)}
+            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+              !isMinified
+                ? 'bg-white dark:bg-surface-700 text-primary-600 dark:text-primary-400 shadow-sm'
+                : 'text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200'
+            }`}
+          >
+            Beautify
+          </button>
+          <button
+            onClick={() => setIsMinified(true)}
+            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+              isMinified
+                ? 'bg-white dark:bg-surface-700 text-primary-600 dark:text-primary-400 shadow-sm'
+                : 'text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200'
+            }`}
+          >
+            Minify
+          </button>
+        </div>
         {!isMinified && (
           <select
             value={indent}
             onChange={(e) => setIndent(Number(e.target.value))}
-            className="px-3 py-2 rounded-lg text-sm bg-surface-100 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 text-surface-700 dark:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="px-4 py-2.5 rounded-xl text-sm bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
           >
             <option value={2}>2 spaces</option>
             <option value={4}>4 spaces</option>
@@ -88,21 +91,22 @@ export default memo(function JsonFormatterTool() {
         )}
         <button
           onClick={handlePaste}
-          className="ml-auto px-3 py-2 rounded-lg text-sm bg-surface-100 text-surface-600 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-300 dark:hover:bg-surface-700 transition-colors"
+          className="ml-auto px-4 py-2.5 rounded-xl text-sm font-medium bg-surface-100 text-surface-600 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-300 dark:hover:bg-surface-700 transition-all duration-200 active:scale-95"
         >
           Paste
         </button>
       </div>
 
+      {/* Input */}
       <div>
-        <label className="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1.5">
+        <label className="block text-sm font-semibold text-surface-700 dark:text-surface-300 mb-2">
           JSON Input
         </label>
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder='Paste your JSON here... e.g. {"name": "value"}'
-          className="w-full h-40 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none placeholder:text-surface-400 dark:placeholder:text-surface-500"
+          className="w-full h-52 bg-white dark:bg-surface-800 border-2 border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:border-primary-400 dark:focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all duration-200 resize-none placeholder:text-surface-300 dark:placeholder:text-surface-600 text-surface-800 dark:text-surface-100"
           spellCheck={false}
         />
       </div>
@@ -110,18 +114,19 @@ export default memo(function JsonFormatterTool() {
       <ErrorMessage message={error ? `Syntax Error: ${error}` : ''} onDismiss={() => setError('')} />
 
       {!error && debouncedInput.trim() && (
-        <div className="text-green-600 dark:text-green-400 text-sm bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-lg flex items-center gap-1.5">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <div className="text-green-600 dark:text-green-400 text-sm bg-green-50 dark:bg-green-900/20 px-4 py-2.5 rounded-xl flex items-center gap-2 border border-green-200 dark:border-green-800/50">
+          <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           Valid JSON
         </div>
       )}
 
+      {/* Output */}
       <div>
-        <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <label className="block text-sm font-medium text-surface-600 dark:text-surface-400">
+            <label className="block text-sm font-semibold text-surface-700 dark:text-surface-300">
               Formatted Output
             </label>
             {isProcessing && (
@@ -142,7 +147,7 @@ export default memo(function JsonFormatterTool() {
           <textarea
             value={output}
             readOnly
-            className="w-full h-48 bg-surface-50 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700 rounded-lg px-3 py-2 text-sm font-mono resize-none text-surface-700 dark:text-surface-300"
+            className="w-full h-56 bg-surface-50 dark:bg-surface-800/60 border-2 border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3 text-sm font-mono resize-none text-surface-700 dark:text-surface-200 cursor-text select-all"
             placeholder="Formatted JSON will appear here..."
           />
         )}

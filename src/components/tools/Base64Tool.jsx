@@ -50,32 +50,35 @@ export default memo(function Base64Tool() {
   useKeyboardShortcut(shortcuts);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Mode selector */}
       <div className="flex items-center gap-2">
-        <button
-          onClick={() => setMode('encode')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            mode === 'encode'
-              ? 'bg-primary-600 text-white'
-              : 'bg-surface-100 text-surface-600 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-300'
-          }`}
-        >
-          Encode
-        </button>
-        <button
-          onClick={() => setMode('decode')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            mode === 'decode'
-              ? 'bg-primary-600 text-white'
-              : 'bg-surface-100 text-surface-600 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-300'
-          }`}
-        >
-          Decode
-        </button>
+        <div className="flex items-center gap-1 p-1 bg-surface-100 dark:bg-surface-800 rounded-xl">
+          <button
+            onClick={() => setMode('encode')}
+            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+              mode === 'encode'
+                ? 'bg-white dark:bg-surface-700 text-primary-600 dark:text-primary-400 shadow-sm'
+                : 'text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200'
+            }`}
+          >
+            Encode
+          </button>
+          <button
+            onClick={() => setMode('decode')}
+            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+              mode === 'decode'
+                ? 'bg-white dark:bg-surface-700 text-primary-600 dark:text-primary-400 shadow-sm'
+                : 'text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200'
+            }`}
+          >
+            Decode
+          </button>
+        </div>
         <button
           onClick={swap}
           disabled={!output}
-          className="ml-auto p-2 rounded-lg text-surface-500 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors disabled:opacity-40"
+          className="ml-auto p-2.5 rounded-xl text-surface-500 hover:bg-surface-100 dark:hover:bg-surface-800 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
           title="Swap input/output (Ctrl+Enter)"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -84,24 +87,26 @@ export default memo(function Base64Tool() {
         </button>
       </div>
 
+      {/* Input */}
       <div>
-        <label className="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1.5">
+        <label className="block text-sm font-semibold text-surface-700 dark:text-surface-300 mb-2">
           {mode === 'encode' ? 'Text Input' : 'Base64 Input'}
         </label>
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={mode === 'encode' ? 'Enter text to encode...' : 'Enter Base64 string to decode...'}
-          className="w-full h-32 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none placeholder:text-surface-400 dark:placeholder:text-surface-500"
+          className="w-full h-44 bg-white dark:bg-surface-800 border-2 border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:border-primary-400 dark:focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all duration-200 resize-none placeholder:text-surface-300 dark:placeholder:text-surface-600 text-surface-800 dark:text-surface-100"
         />
       </div>
 
       <ErrorMessage message={error} onDismiss={() => setError('')} />
 
+      {/* Output */}
       <div>
-        <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <label className="block text-sm font-medium text-surface-600 dark:text-surface-400">
+            <label className="block text-sm font-semibold text-surface-700 dark:text-surface-300">
               {mode === 'encode' ? 'Base64 Output' : 'Decoded Text'}
             </label>
             {isProcessing && (
@@ -122,7 +127,7 @@ export default memo(function Base64Tool() {
           <textarea
             value={output}
             readOnly
-            className="w-full h-32 bg-surface-50 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700 rounded-lg px-3 py-2 text-sm font-mono resize-none text-surface-700 dark:text-surface-300"
+            className="w-full h-44 bg-surface-50 dark:bg-surface-800/60 border-2 border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3 text-sm font-mono resize-none text-surface-700 dark:text-surface-200 placeholder:text-surface-300 dark:placeholder:text-surface-600 cursor-text select-all"
             placeholder="Output will appear here..."
           />
         )}

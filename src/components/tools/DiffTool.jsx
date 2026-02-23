@@ -18,10 +18,7 @@ export default memo(function DiffTool() {
     try {
       let l = left;
       let r = right;
-      if (ignoreCase) {
-        l = l.toLowerCase();
-        r = r.toLowerCase();
-      }
+      if (ignoreCase) { l = l.toLowerCase(); r = r.toLowerCase(); }
       setError('');
       return diffLines(l, r, { ignoreWhitespace });
     } catch (e) {
@@ -31,16 +28,8 @@ export default memo(function DiffTool() {
   }, [compared, left, right, ignoreCase, ignoreWhitespace]);
 
   const handleCompare = useCallback(() => setCompared(true), []);
-
-  const handleLeftChange = useCallback((e) => {
-    setLeft(e.target.value);
-    setCompared(false);
-  }, []);
-
-  const handleRightChange = useCallback((e) => {
-    setRight(e.target.value);
-    setCompared(false);
-  }, []);
+  const handleLeftChange = useCallback((e) => { setLeft(e.target.value); setCompared(false); }, []);
+  const handleRightChange = useCallback((e) => { setRight(e.target.value); setCompared(false); }, []);
 
   const stats = useMemo(() => {
     if (!diffs) return null;
@@ -100,35 +89,30 @@ export default memo(function DiffTool() {
   useKeyboardShortcut(shortcuts);
 
   return (
-    <div className="space-y-4">
-      {/* Guide */}
-      <p className="text-xs text-surface-500 dark:text-surface-400">
-        Paste two texts and compare them line by line. Differences are highlighted by color.
-      </p>
-
+    <div className="space-y-6">
       {/* Input Areas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1.5">
+          <label className="block text-sm font-semibold text-surface-700 dark:text-surface-300 mb-2">
             Original Text
           </label>
           <textarea
             value={left}
             onChange={handleLeftChange}
             placeholder="Paste original text..."
-            className="w-full h-40 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none placeholder:text-surface-400 dark:placeholder:text-surface-500"
+            className="w-full h-52 bg-white dark:bg-surface-800 border-2 border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:border-red-400 dark:focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all duration-200 resize-none placeholder:text-surface-300 dark:placeholder:text-surface-600 text-surface-800 dark:text-surface-100"
             spellCheck={false}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1.5">
+          <label className="block text-sm font-semibold text-surface-700 dark:text-surface-300 mb-2">
             Modified Text
           </label>
           <textarea
             value={right}
             onChange={handleRightChange}
             placeholder="Paste modified text..."
-            className="w-full h-40 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none placeholder:text-surface-400 dark:placeholder:text-surface-500"
+            className="w-full h-52 bg-white dark:bg-surface-800 border-2 border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:border-green-400 dark:focus:border-green-500 focus:ring-4 focus:ring-green-500/10 transition-all duration-200 resize-none placeholder:text-surface-300 dark:placeholder:text-surface-600 text-surface-800 dark:text-surface-100"
             spellCheck={false}
           />
         </div>
@@ -139,38 +123,36 @@ export default memo(function DiffTool() {
         <button
           onClick={handleCompare}
           disabled={!left && !right}
-          className="px-4 py-2 rounded-lg text-sm font-medium bg-primary-600 text-white hover:bg-primary-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-primary-600 text-white hover:bg-primary-700 active:scale-95 transition-all duration-200 shadow-sm shadow-primary-500/30 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
           title="Compare (Ctrl+Enter)"
         >
           Compare
         </button>
 
-        {/* View mode toggle */}
-        <div className="flex items-center gap-1 bg-surface-100 dark:bg-surface-800 rounded-lg p-0.5">
+        <div className="flex items-center gap-1 p-1 bg-surface-100 dark:bg-surface-800 rounded-xl">
           <button
             onClick={() => setViewMode('side')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+            className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
               viewMode === 'side'
                 ? 'bg-white dark:bg-surface-700 text-surface-900 dark:text-white shadow-sm'
-                : 'text-surface-500 dark:text-surface-400'
+                : 'text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200'
             }`}
           >
             Side by Side
           </button>
           <button
             onClick={() => setViewMode('inline')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+            className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
               viewMode === 'inline'
                 ? 'bg-white dark:bg-surface-700 text-surface-900 dark:text-white shadow-sm'
-                : 'text-surface-500 dark:text-surface-400'
+                : 'text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200'
             }`}
           >
             Inline
           </button>
         </div>
 
-        {/* Options */}
-        <label className="flex items-center gap-2 text-xs text-surface-600 dark:text-surface-400 cursor-pointer">
+        <label className="flex items-center gap-2 text-xs text-surface-600 dark:text-surface-400 cursor-pointer select-none">
           <input
             type="checkbox"
             checked={ignoreCase}
@@ -179,7 +161,7 @@ export default memo(function DiffTool() {
           />
           Ignore case
         </label>
-        <label className="flex items-center gap-2 text-xs text-surface-600 dark:text-surface-400 cursor-pointer">
+        <label className="flex items-center gap-2 text-xs text-surface-600 dark:text-surface-400 cursor-pointer select-none">
           <input
             type="checkbox"
             checked={ignoreWhitespace}
@@ -194,46 +176,40 @@ export default memo(function DiffTool() {
 
       {/* Stats */}
       {stats && (
-        <div className="flex items-center gap-4 text-xs font-medium">
+        <div className="flex items-center gap-4 text-sm font-semibold p-3 bg-surface-50 dark:bg-surface-800/50 rounded-xl border border-surface-200 dark:border-surface-700">
           <span className="text-green-600 dark:text-green-400">+{stats.added} added</span>
+          <span className="text-surface-300 dark:text-surface-600">·</span>
           <span className="text-red-500 dark:text-red-400">-{stats.removed} removed</span>
+          <span className="text-surface-300 dark:text-surface-600">·</span>
           <span className="text-surface-500 dark:text-surface-400">{stats.unchanged} unchanged</span>
         </div>
       )}
 
       {/* Diff Results */}
       {diffs && viewMode === 'side' && (
-        <div className="rounded-lg border border-surface-200 dark:border-surface-700 overflow-hidden overflow-x-auto">
+        <div className="rounded-xl border border-surface-200 dark:border-surface-700 overflow-hidden overflow-x-auto card-pop">
           <table className="w-full text-xs font-mono border-collapse">
             <tbody>
               {sideBySideRows.map((row, i) => (
-                <tr key={i}>
-                  <td className="w-8 px-2 py-0.5 text-right text-surface-400 dark:text-surface-500 bg-surface-50 dark:bg-surface-900 border-r border-surface-200 dark:border-surface-700 select-none">
+                <tr key={i} className="hover:bg-surface-50/50 dark:hover:bg-surface-800/30">
+                  <td className="w-8 px-2 py-1 text-right text-surface-400 dark:text-surface-500 bg-surface-50 dark:bg-surface-900 border-r border-surface-200 dark:border-surface-700 select-none">
                     {row.leftNum}
                   </td>
-                  <td
-                    className={`px-2 py-0.5 whitespace-pre-wrap border-r border-surface-200 dark:border-surface-700 ${
-                      row.type === 'removed'
-                        ? 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300'
-                        : row.type === 'modified'
-                        ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300'
-                        : 'text-surface-700 dark:text-surface-300'
-                    }`}
-                  >
+                  <td className={`px-3 py-1 whitespace-pre-wrap border-r border-surface-200 dark:border-surface-700 ${
+                    row.type === 'removed' ? 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300'
+                    : row.type === 'modified' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300'
+                    : 'text-surface-700 dark:text-surface-300'
+                  }`}>
                     {row.left ?? ''}
                   </td>
-                  <td className="w-8 px-2 py-0.5 text-right text-surface-400 dark:text-surface-500 bg-surface-50 dark:bg-surface-900 border-r border-surface-200 dark:border-surface-700 select-none">
+                  <td className="w-8 px-2 py-1 text-right text-surface-400 dark:text-surface-500 bg-surface-50 dark:bg-surface-900 border-r border-surface-200 dark:border-surface-700 select-none">
                     {row.rightNum}
                   </td>
-                  <td
-                    className={`px-2 py-0.5 whitespace-pre-wrap ${
-                      row.type === 'added'
-                        ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
-                        : row.type === 'modified'
-                        ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300'
-                        : 'text-surface-700 dark:text-surface-300'
-                    }`}
-                  >
+                  <td className={`px-3 py-1 whitespace-pre-wrap ${
+                    row.type === 'added' ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
+                    : row.type === 'modified' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300'
+                    : 'text-surface-700 dark:text-surface-300'
+                  }`}>
                     {row.right ?? ''}
                   </td>
                 </tr>
@@ -244,19 +220,17 @@ export default memo(function DiffTool() {
       )}
 
       {diffs && viewMode === 'inline' && (
-        <div className="rounded-lg border border-surface-200 dark:border-surface-700 overflow-hidden">
+        <div className="rounded-xl border border-surface-200 dark:border-surface-700 overflow-hidden card-pop">
           <div className="text-xs font-mono">
             {diffs.map((part, i) => {
               const lines = part.value.replace(/\n$/, '').split('\n');
               return lines.map((line, j) => (
                 <div
                   key={`${i}-${j}`}
-                  className={`px-3 py-0.5 whitespace-pre-wrap ${
-                    part.added
-                      ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
-                      : part.removed
-                      ? 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300 line-through'
-                      : 'text-surface-700 dark:text-surface-300'
+                  className={`px-4 py-1 whitespace-pre-wrap ${
+                    part.added ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
+                    : part.removed ? 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300 line-through'
+                    : 'text-surface-700 dark:text-surface-300'
                   }`}
                 >
                   <span className="inline-block w-4 text-surface-400 select-none mr-2">

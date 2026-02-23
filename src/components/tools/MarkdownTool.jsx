@@ -95,24 +95,19 @@ export default memo(function MarkdownTool() {
   useKeyboardShortcut(shortcuts);
 
   return (
-    <div className="space-y-3">
-      {/* Guide */}
-      <p className="text-xs text-surface-500 dark:text-surface-400">
-        Write Markdown on the left and see the live preview on the right. Supports GitHub Flavored Markdown.
-      </p>
-
+    <div className="space-y-4">
       {/* Toolbar */}
       <div className="flex items-center gap-2">
         <button
           onClick={loadSample}
-          className="px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-100 text-surface-600 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-300 dark:hover:bg-surface-700 transition-colors"
+          className="px-4 py-2 rounded-xl text-sm font-medium bg-surface-100 text-surface-600 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-300 dark:hover:bg-surface-700 transition-all duration-200 active:scale-95"
         >
           Load Sample
         </button>
         <button
           onClick={copyHtml}
           disabled={!html}
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 active:scale-95 disabled:opacity-40 ${
+          className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 active:scale-95 disabled:opacity-40 ${
             copied
               ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
               : 'bg-surface-100 text-surface-600 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-300 dark:hover:bg-surface-700'
@@ -123,44 +118,49 @@ export default memo(function MarkdownTool() {
         <button
           onClick={() => setInput('')}
           disabled={!input}
-          className="px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-100 text-surface-600 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-300 dark:hover:bg-surface-700 transition-colors disabled:opacity-40"
+          className="px-4 py-2 rounded-xl text-sm font-medium bg-surface-100 text-surface-600 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-300 dark:hover:bg-surface-700 transition-all duration-200 disabled:opacity-40 active:scale-95"
         >
           Clear
         </button>
+        {input && (
+          <span className="ml-auto text-xs text-surface-400 dark:text-surface-500">
+            {input.length} chars
+          </span>
+        )}
       </div>
 
       <ErrorMessage message={error} onDismiss={() => setError('')} />
 
       {/* Split View */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3" style={{ minHeight: '400px' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4" style={{ minHeight: '500px' }}>
         {/* Editor */}
         <div className="flex flex-col">
-          <label className="block text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-bold text-surface-500 dark:text-surface-400 uppercase tracking-widest mb-2">
             Editor
           </label>
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Write your markdown here..."
-            className="flex-1 w-full bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none placeholder:text-surface-400 dark:placeholder:text-surface-500"
-            style={{ minHeight: '380px' }}
+            className="flex-1 w-full bg-white dark:bg-surface-800 border-2 border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:border-primary-400 dark:focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all duration-200 resize-none placeholder:text-surface-300 dark:placeholder:text-surface-600 text-surface-800 dark:text-surface-100"
+            style={{ minHeight: '480px' }}
             spellCheck={false}
           />
         </div>
 
         {/* Preview */}
         <div className="flex flex-col">
-          <label className="block text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-bold text-surface-500 dark:text-surface-400 uppercase tracking-widest mb-2">
             Preview
           </label>
           {html ? (
             <div
-              className="flex-1 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg px-4 py-3 overflow-y-auto markdown-preview"
-              style={{ minHeight: '380px' }}
+              className="flex-1 bg-white dark:bg-surface-800 border-2 border-surface-200 dark:border-surface-700 rounded-xl px-5 py-4 overflow-y-auto markdown-preview"
+              style={{ minHeight: '480px' }}
               dangerouslySetInnerHTML={{ __html: html }}
             />
           ) : (
-            <div className="flex-1 flex items-center justify-center bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg" style={{ minHeight: '380px' }}>
+            <div className="flex-1 flex items-center justify-center bg-white dark:bg-surface-800 border-2 border-surface-200 dark:border-surface-700 rounded-xl" style={{ minHeight: '480px' }}>
               <EmptyState
                 title="Write Markdown to see the preview"
                 examples={['Supports GitHub Flavored Markdown']}

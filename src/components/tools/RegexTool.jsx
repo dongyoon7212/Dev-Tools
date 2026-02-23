@@ -21,7 +21,7 @@ export default memo(function RegexTool() {
 
   const flagOptions = [
     { flag: 'g', label: 'Global' },
-    { flag: 'i', label: 'Case Insensitive' },
+    { flag: 'i', label: 'Ignore Case' },
     { flag: 'm', label: 'Multiline' },
     { flag: 's', label: 'Dot All' },
   ];
@@ -44,22 +44,12 @@ export default memo(function RegexTool() {
 
       if (flags.includes('g')) {
         while ((match = regex.exec(debouncedTest)) !== null) {
-          matchList.push({
-            value: match[0],
-            index: match.index,
-            groups: match.slice(1),
-          });
+          matchList.push({ value: match[0], index: match.index, groups: match.slice(1) });
           if (!match[0]) break;
         }
       } else {
         match = regex.exec(debouncedTest);
-        if (match) {
-          matchList.push({
-            value: match[0],
-            index: match.index,
-            groups: match.slice(1),
-          });
-        }
+        if (match) matchList.push({ value: match[0], index: match.index, groups: match.slice(1) });
       }
 
       let parts = [];
@@ -67,15 +57,11 @@ export default memo(function RegexTool() {
       const colors = ['bg-yellow-200 dark:bg-yellow-800', 'bg-green-200 dark:bg-green-800', 'bg-blue-200 dark:bg-blue-800', 'bg-pink-200 dark:bg-pink-800'];
 
       matchList.forEach((m, i) => {
-        if (m.index > lastIndex) {
-          parts.push({ text: debouncedTest.slice(lastIndex, m.index), highlight: false });
-        }
+        if (m.index > lastIndex) parts.push({ text: debouncedTest.slice(lastIndex, m.index), highlight: false });
         parts.push({ text: m.value, highlight: true, color: colors[i % colors.length] });
         lastIndex = m.index + m.value.length;
       });
-      if (lastIndex < debouncedTest.length) {
-        parts.push({ text: debouncedTest.slice(lastIndex), highlight: false });
-      }
+      if (lastIndex < debouncedTest.length) parts.push({ text: debouncedTest.slice(lastIndex), highlight: false });
 
       return { matches: matchList, highlighted: parts };
     } catch (e) {
@@ -86,8 +72,7 @@ export default memo(function RegexTool() {
 
   const copyMatches = useCallback(() => {
     if (matches.length > 0) {
-      const text = matches.map((m) => m.value).join('\n');
-      copy(text);
+      copy(matches.map((m) => m.value).join('\n'));
       addToast('Copied all matches!', 'success');
     }
   }, [matches, copy, addToast]);
@@ -98,45 +83,49 @@ export default memo(function RegexTool() {
   useKeyboardShortcut(shortcuts);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Pattern Input */}
       <div>
-        <label className="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1.5">
+        <label className="block text-sm font-semibold text-surface-700 dark:text-surface-300 mb-2">
           Regular Expression
         </label>
-        <div className="flex items-center gap-1">
-          <span className="text-surface-400 dark:text-surface-500 font-mono text-lg">/</span>
+        <div className="flex items-center gap-2 bg-white dark:bg-surface-800 border-2 border-surface-200 dark:border-surface-700 rounded-xl px-4 focus-within:border-primary-400 dark:focus-within:border-primary-500 focus-within:ring-4 focus-within:ring-primary-500/10 transition-all duration-200">
+          <span className="text-surface-400 dark:text-surface-500 font-mono text-xl select-none">/</span>
           <input
             type="text"
             value={pattern}
             onChange={(e) => setPattern(e.target.value)}
             placeholder="Enter regex pattern..."
-            className="flex-1 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder:text-surface-400 dark:placeholder:text-surface-500"
+            className="flex-1 bg-transparent py-3 text-sm font-mono focus:outline-none placeholder:text-surface-300 dark:placeholder:text-surface-600 text-surface-800 dark:text-surface-100"
           />
-          <span className="text-surface-400 dark:text-surface-500 font-mono text-lg">/{flags}</span>
+          <span className="text-surface-400 dark:text-surface-500 font-mono text-xl select-none">/{flags}</span>
         </div>
       </div>
 
+      {/* Flags */}
       <div className="flex items-center gap-2 flex-wrap">
         {flagOptions.map(({ flag, label }) => (
           <button
             key={flag}
             onClick={() => toggleFlag(flag)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 active:scale-95 ${
               flags.includes(flag)
-                ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300 ring-1 ring-primary-300 dark:ring-primary-700'
+                ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300 ring-2 ring-primary-300 dark:ring-primary-700'
                 : 'bg-surface-100 text-surface-500 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-400 dark:hover:bg-surface-700'
             }`}
           >
-            {flag} - {label}
+            <span className="font-mono mr-1">{flag}</span>
+            <span className="text-[10px] opacity-70">— {label}</span>
           </button>
         ))}
       </div>
 
       <ErrorMessage message={error} onDismiss={() => setError('')} />
 
+      {/* Test String */}
       <div>
-        <div className="flex items-center gap-2 mb-1.5">
-          <label className="block text-sm font-medium text-surface-600 dark:text-surface-400">
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-sm font-semibold text-surface-700 dark:text-surface-300">
             Test String
           </label>
           {isProcessing && (
@@ -150,17 +139,22 @@ export default memo(function RegexTool() {
           value={testString}
           onChange={(e) => setTestString(e.target.value)}
           placeholder="Enter test string..."
-          className="w-full h-28 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none placeholder:text-surface-400 dark:placeholder:text-surface-500"
+          className="w-full h-40 bg-white dark:bg-surface-800 border-2 border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:border-primary-400 dark:focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all duration-200 resize-none placeholder:text-surface-300 dark:placeholder:text-surface-600 text-surface-800 dark:text-surface-100"
         />
       </div>
 
       {/* Highlighted Result */}
       {highlighted && highlighted.length > 0 && (
-        <div>
-          <label className="block text-sm font-medium text-surface-600 dark:text-surface-400 mb-1.5">
-            Match Highlight
-          </label>
-          <div className="bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg px-3 py-2 text-sm font-mono whitespace-pre-wrap break-all">
+        <div className="card-pop">
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-semibold text-surface-700 dark:text-surface-300">
+              Match Highlight
+            </label>
+            <span className="text-xs font-semibold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2.5 py-1 rounded-lg">
+              {matches.length} match{matches.length !== 1 ? 'es' : ''}
+            </span>
+          </div>
+          <div className="bg-white dark:bg-surface-800 border-2 border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3 text-sm font-mono whitespace-pre-wrap break-all min-h-[80px]">
             {highlighted.map((part, i) =>
               part.highlight ? (
                 <mark key={i} className={`${part.color} rounded px-0.5`}>
@@ -177,25 +171,23 @@ export default memo(function RegexTool() {
       {/* Match Details */}
       {matches.length > 0 && (
         <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-sm font-medium text-surface-600 dark:text-surface-400">
+          <div className="flex items-center justify-between mb-3">
+            <label className="block text-sm font-semibold text-surface-700 dark:text-surface-300">
               Matches ({matches.length})
             </label>
             <CopyButton text={matches.map((m) => m.value).join('\n')} />
           </div>
-          <div className="space-y-1.5 max-h-48 overflow-y-auto">
+          <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
             {matches.map((m, i) => (
-              <div key={i} className="bg-surface-50 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700 rounded-lg px-3 py-2 text-sm font-mono">
+              <div key={i} className="bg-surface-50 dark:bg-surface-800/60 border border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3 text-sm font-mono">
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-surface-400 min-w-[3rem]">#{i + 1}</span>
-                  <span className="text-surface-700 dark:text-surface-300">"{m.value}"</span>
+                  <span className="text-surface-700 dark:text-surface-200">"{m.value}"</span>
                   <span className="text-xs text-surface-400">@{m.index}</span>
                 </div>
                 {m.groups.length > 0 && (
                   <div className="mt-1 ml-12 text-xs text-surface-500">
-                    Groups: {m.groups.map((g, gi) => (
-                      <span key={gi} className="mr-2">${gi + 1}="{g}"</span>
-                    ))}
+                    Groups: {m.groups.map((g, gi) => <span key={gi} className="mr-2">${gi + 1}="{g}"</span>)}
                   </div>
                 )}
               </div>

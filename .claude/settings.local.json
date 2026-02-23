@@ -14,7 +14,8 @@
       "Bash(done)",
       "Bash(ls:*)",
       "Bash(cat:*)",
-      "Bash(for file in /Users/dongyoon/Desktop/project/Dev-Tools/src/components/tools/*.jsx)"
+      "Bash(for file in /Users/dongyoon/Desktop/project/Dev-Tools/src/components/tools/*.jsx)",
+      "Bash(git add:*)"
     ]
   }
 }
